@@ -89,10 +89,21 @@ int main(int, char*[]) {
         }
         else 
         {
-            SDL_BlitSurface(gHelloWorld, nullptr, gScreenSurface, nullptr);
-            SDL_UpdateWindowSurface(gWindow);
+            bool quit = false;
 
-            SDL_Event e; bool quit = false; while( quit == false ){ while( SDL_PollEvent( &e ) ){ if( e.type == SDL_QUIT ) quit = true; } }
+            SDL_Event e;
+
+            while(!quit)
+            {
+                while(SDL_PollEvent(&e) != 0)
+                {
+                    if(e.type == SDL_QUIT)
+                        quit = true;
+                }
+
+                SDL_BlitSurface(gHelloWorld, nullptr, gScreenSurface, nullptr);
+                SDL_UpdateWindowSurface(gWindow);
+            }
         }
     }
     close();
