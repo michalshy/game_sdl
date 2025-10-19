@@ -8,7 +8,7 @@ find_package(SDL2 REQUIRED)
 file(GLOB_RECURSE SRC_FILES src/*.cpp)
 include_directories(${SDL2_INCLUDE_DIRS})
 add_executable(${PROJECT_NAME} ${SRC_FILES})
-target_link_libraries(${PROJECT_NAME} PRIVATE SDL2::SDL2 SDL2::SDL2main)
+target_link_libraries(${PROJECT_NAME} PRIVATE SDL2::SDL2 SDL2::SDL2main SDL2_image)
 target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -pedantic)
 
 set(RESOURCE_SOURCE_DIR "${CMAKE_SOURCE_DIR}/res")

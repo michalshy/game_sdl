@@ -1,8 +1,8 @@
 #include <SDL2/SDL.h>
 #include <iostream>
 
-const int SCREEN_WIDTH = 1920;
-const int SCREEN_HEIGHT = 1080;
+const int SCREEN_WIDTH = 640;
+const int SCREEN_HEIGHT = 480;
 
 enum KeyPressSurfaces
 {
@@ -35,7 +35,7 @@ SDL_Surface* gScreenSurface = nullptr;
 SDL_Surface* gKeyPressSurfaces [ KEY_PRESS_SURFACE_TOTAL ];
 
 // Currently displayed image
-SDL_Surface* gCurrentSurface = nullptr;
+SDL_Surface* gStretchedSurface = nullptr;
 
 bool init()
 {
@@ -119,13 +119,26 @@ void close()
 
 SDL_Surface* loadSurface(std::string path)
 {
+    SDL_Surface* optimizedSurface = nullptr;
+
     SDL_Surface* loadedSurface = SDL_LoadBMP(path.c_str());
     if(!loadedSurface)
     {
         std::cout << "Unable to load image! SDL Error: " << SDL_GetError() << std::endl;
     }
+    else
+    {
+        optimizedSurface = SDL_ConvertSurface(loadedSurface, gScreenSurface->format, 0);
+    
+        if(!optimizedSurface)
+        {
+            std::cout << "Unable to optimize image! SDL Error: " << SDL_GetError() << std::endl;
+        }
 
-    return loadedSurface;
+        SDL_FreeSurface(loadedSurface);
+    }
+
+    return optimizedSurface;
 }
 
 int main(int, char*[]) {
@@ -145,7 +158,7 @@ int main(int, char*[]) {
             bool quit = false;
 
             SDL_Event e;
-            gCurrentSurface = gKeyPressSurfaces[ KEY_PRESS_SURFACE_DEFAULT ];
+            gStretchedSurface = gKeyPressSurfaces[ KEY_PRESS_SURFACE_DEFAULT ];
 
             while(!quit)
             {
@@ -158,25 +171,31 @@ int main(int, char*[]) {
                         switch (e.key.keysym.sym)
                         {
                         case SDLK_UP:
-                            gCurrentSurface = gKeyPressSurfaces[ KEY_PRESS_SURFACE_UP ];
+                            gStretchedSurface = gKeyPressSurfaces[ KEY_PRESS_SURFACE_UP ];
                             break;
                         case SDLK_RIGHT:
-                            gCurrentSurface = gKeyPressSurfaces[ KEY_PRESS_SURFACE_RIGHT ];
+                            gStretchedSurface = gKeyPressSurfaces[ KEY_PRESS_SURFACE_RIGHT ];
                             break;
                         case SDLK_DOWN:
-                            gCurrentSurface = gKeyPressSurfaces[ KEY_PRESS_SURFACE_DOWN ];
+                            gStretchedSurface = gKeyPressSurfaces[ KEY_PRESS_SURFACE_DOWN ];
                             break;
                         case SDLK_LEFT:
-                            gCurrentSurface = gKeyPressSurfaces[ KEY_PRESS_SURFACE_LEFT ];
+                            gStretchedSurface = gKeyPressSurfaces[ KEY_PRESS_SURFACE_LEFT ];
                             break;
                         default:
-                            gCurrentSurface = gKeyPressSurfaces[ KEY_PRESS_SURFACE_DEFAULT ];
+                            gStretchedSurface = gKeyPressSurfaces[ KEY_PRESS_SURFACE_DEFAULT ];
                             break;
                         }
                     }
                 }
 
-                SDL_BlitSurface(gCurrentSurface, nullptr, gScreenSurface, nullptr);
+                SDL_Rect stretchedRect;
+                stretchedRect.x = 0;
+                stretchedRect.y = 0;
+                stretchedRect.w = SCREEN_WIDTH;
+                stretchedRect.h = SCREEN_HEIGHT;
+
+                SDL_BlitScaled(gStretchedSurface, nullptr, gScreenSurface, &stretchedRect);
                 SDL_UpdateWindowSurface(gWindow);
             }
         }
