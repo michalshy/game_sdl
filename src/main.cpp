@@ -1,5 +1,7 @@
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
 #include <iostream>
+#include <string>
 
 const int SCREEN_WIDTH = 640;
 const int SCREEN_HEIGHT = 480;
@@ -24,6 +26,7 @@ bool loadMedia();
 void close();
 
 SDL_Surface* loadSurface(std::string path);
+SDL_Surface* loadSurfacePNG(std::string path);
 
 //The window we will render
 SDL_Window* gWindow = nullptr;
@@ -36,6 +39,7 @@ SDL_Surface* gKeyPressSurfaces [ KEY_PRESS_SURFACE_TOTAL ];
 
 // Currently displayed image
 SDL_Surface* gStretchedSurface = nullptr;
+SDL_Surface* gPNGSurface = nullptr;
 
 bool init()
 {
@@ -49,8 +53,13 @@ bool init()
         gWindow = SDL_CreateWindow("SDL Game", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 
             SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
 
+        int imgFlags = IMG_INIT_PNG;
+
         if(!gWindow) {
             std::cout << "Window could not be created! SDL Error: " << SDL_GetError() << std::endl;
+        }
+        else if(!(IMG_Init(imgFlags) & imgFlags)) {
+            std::cout << "Image could not be initialized! SDL Error: " << SDL_GetError() << std::endl;
         }
         else {
             gScreenSurface = SDL_GetWindowSurface(gWindow);
@@ -63,7 +72,7 @@ bool loadMedia()
 {
     bool success = true;
 
-    gKeyPressSurfaces[ KEY_PRESS_SURFACE_DEFAULT ] = loadSurface("res/def.bmp");
+    gKeyPressSurfaces[ KEY_PRESS_SURFACE_DEFAULT ] = loadSurfacePNG("res/sample.png");
     if(gKeyPressSurfaces[KEY_PRESS_SURFACE_DEFAULT] == nullptr)
     {
         std::cout << "Failed to load default image!" << std::endl;
@@ -101,7 +110,7 @@ bool loadMedia()
     return success;
 }
 
-void close()
+void close()    
 {
     //Deallocate surfaces
     for( int i = 0; i < KEY_PRESS_SURFACE_TOTAL; ++i )
@@ -122,6 +131,29 @@ SDL_Surface* loadSurface(std::string path)
     SDL_Surface* optimizedSurface = nullptr;
 
     SDL_Surface* loadedSurface = SDL_LoadBMP(path.c_str());
+    if(!loadedSurface)
+    {
+        std::cout << "Unable to load image! SDL Error: " << SDL_GetError() << std::endl;
+    }
+    else
+    {
+        optimizedSurface = SDL_ConvertSurface(loadedSurface, gScreenSurface->format, 0);
+    
+        if(!optimizedSurface)
+        {
+            std::cout << "Unable to optimize image! SDL Error: " << SDL_GetError() << std::endl;
+        }
+
+        SDL_FreeSurface(loadedSurface);
+    }
+
+    return optimizedSurface;
+}
+
+SDL_Surface* loadSurfacePNG(std::string path)
+{
+    SDL_Surface* optimizedSurface = nullptr;
+    SDL_Surface* loadedSurface = IMG_Load(path.c_str());
     if(!loadedSurface)
     {
         std::cout << "Unable to load image! SDL Error: " << SDL_GetError() << std::endl;
