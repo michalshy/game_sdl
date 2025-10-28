@@ -2,6 +2,7 @@
 
 #include "window/window.h"
 #include "renderer/renderer.h"
+#include "game/game.h"
 #include <memory>
 
 class App
@@ -11,6 +12,7 @@ class App
 
     std::unique_ptr<Window> window = nullptr;
     std::unique_ptr<Renderer> renderer = nullptr;
+    std::unique_ptr<Game> game;
 public:
     App();
     bool Init();

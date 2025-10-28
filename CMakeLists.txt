@@ -5,12 +5,19 @@ project(game VERSION 1.0 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 find_package(SDL2 REQUIRED)
+find_package(spdlog CONFIG REQUIRED)
+find_package(glm CONFIG REQUIRED)
+
 file(GLOB_RECURSE SRC_FILES src/*.cpp)
+
+include_directories(src)
 include_directories(${SDL2_INCLUDE_DIRS})
+
 add_executable(${PROJECT_NAME} ${SRC_FILES})
-target_link_libraries(${PROJECT_NAME} PRIVATE SDL2::SDL2 SDL2::SDL2main SDL2_image)
+target_link_libraries(${PROJECT_NAME} PRIVATE SDL2::SDL2 SDL2::SDL2main SDL2_image spdlog::spdlog glm::glm)
 target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -pedantic)
 
+# Copy resources
 set(RESOURCE_SOURCE_DIR "${CMAKE_SOURCE_DIR}/res")
 set(RESOURCE_DEST_DIR "$<TARGET_FILE_DIR:game>/res")
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
