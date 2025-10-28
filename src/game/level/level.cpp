@@ -32,7 +32,10 @@ bool Level::InitLevel()
 
 bool Level::InitMap()
 {
-    std::mt19937 rng(std::random_device{}());
+    unsigned int seed = std::random_device{}();
+    seed = 4164015880;
+    LOG_DEBUG("Creating level for seed: {}", seed);
+    std::mt19937 rng(seed);
     std::uniform_real_distribution<> dist(0.0f,1.0f);
     for(int y = 1; y < GRID_DIMENSIONS.y - 1; y++)
     {
