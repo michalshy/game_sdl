@@ -15,5 +15,7 @@ public:
 
 private:
     bool InitMap();
+    bool Birth(int y, int x);
+    bool Survival(int y, int x);
     void PrintMap();
 };
