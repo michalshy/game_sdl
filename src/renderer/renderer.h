@@ -7,6 +7,10 @@ class Renderer
     SDL_Window* window;
 public:
     bool Init(SDL_Window* window);
-    void Render();
+    void PreRender();
+    void PostRender();
     void Exit();
+
+    SDL_Renderer* GetRawRenderer();
+    SDL_Window* GetRawWIndow();
 };

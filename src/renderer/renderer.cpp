@@ -16,7 +16,13 @@ bool Renderer::Init(SDL_Window* _window)
     return true;
 }
 
-void Renderer::Render()
+void Renderer::PreRender()
+{
+    SDL_SetRenderDrawColor(renderer, 25, 30, 38, 255);
+    SDL_RenderClear(renderer);
+}
+
+void Renderer::PostRender()
 {
     SDL_RenderPresent( renderer );
 }
@@ -26,3 +32,13 @@ void Renderer::Exit()
     SDL_DestroyRenderer(renderer);
     renderer = nullptr;
 }
+
+SDL_Renderer* Renderer::GetRawRenderer()
+{
+    return renderer;
+}
+
+SDL_Window* Renderer::GetRawWIndow()
+{
+    return window;
+}   
