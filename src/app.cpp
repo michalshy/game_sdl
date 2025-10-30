@@ -24,13 +24,13 @@ bool App::Init()
     if(!window->Init())
         return false;
 
-    if(!renderer->Init(window->GetWindowRaw()))
+    if(!renderer->Init(window->GetWindowRaw(), window->GetContextRaw()))
         return false;
 
     if(!game->Init())
         return false;
 
-    if(!editor->Init(renderer->GetRawWIndow(), renderer->GetRawRenderer()))
+    if(!editor->Init(window->GetWindowRaw(), window->GetContextRaw()))
         return false;
 
     LOG_DEBUG("Initialized Application");
@@ -76,6 +76,8 @@ void App::PollEvents()
         editor->PollEvents(e);
 
         if(e.type == SDL_QUIT)
+            quit = true;
+        if (e.type == SDL_WINDOWEVENT && e.window.event == SDL_WINDOWEVENT_CLOSE && e.window.windowID == SDL_GetWindowID(window->GetWindowRaw()))
             quit = true;
     }
 }

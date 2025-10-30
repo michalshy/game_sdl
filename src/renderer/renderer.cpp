@@ -1,44 +1,32 @@
 #include "renderer.h"
-#include <iostream>
+#include <GL/glew.h>
 
-bool Renderer::Init(SDL_Window* _window)
+bool Renderer::Init(SDL_Window* window, SDL_GLContext* context)
 {
-    if(!_window)
+    if(!window || !context)
         return false;
 
-    window = _window;
-    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-    if(renderer == nullptr)
-    {
-        std::cout << "Renderer could not be created! SDL Error: " << SDL_GetError() << std::endl;
-        return false;
-    }
+    m_Window = window;
+    m_Context = context;
+
     return true;
 }
 
 void Renderer::PreRender()
 {
-    SDL_SetRenderDrawColor(renderer, 25, 30, 38, 255);
-    SDL_RenderClear(renderer);
+    int display_w, display_h;
+    SDL_GL_GetDrawableSize(m_Window, &display_w, &display_h);
+    glViewport(0, 0, display_w, display_h);
+    glClearColor(0.1f, 0.12f, 0.15f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
 }
 
 void Renderer::PostRender()
 {
-    SDL_RenderPresent( renderer );
+    SDL_GL_SwapWindow(m_Window);
 }
 
 void Renderer::Exit()
 {
-    SDL_DestroyRenderer(renderer);
-    renderer = nullptr;
+    SDL_GL_DeleteContext(m_Context);
 }
-
-SDL_Renderer* Renderer::GetRawRenderer()
-{
-    return renderer;
-}
-
-SDL_Window* Renderer::GetRawWIndow()
-{
-    return window;
-}   
