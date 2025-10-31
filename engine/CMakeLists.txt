@@ -11,11 +11,9 @@ target_include_directories(engine
     PUBLIC
       $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
       $<INSTALL_INTERFACE:src>
+      $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/vendor/entt/single_include>
 )
 
-# Make SDL visible to engine consumers by linking it here
-# (Assumes find_package(SDL2) was done in top-level CMake; if not, find it here)
-# find_package(SDL2 REQUIRED)  # optional if already found
 target_link_libraries(engine
     PUBLIC
       SDL2::SDL2          # makes SDL2 include dirs & link flags propagate

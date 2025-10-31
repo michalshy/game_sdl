@@ -34,10 +34,6 @@ void Editor::OnFrame()
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplSDL2_NewFrame();
     ImGui::NewFrame();
-}
-
-void Editor::Run()
-{
     if (m_Demo) ImGui::ShowDemoWindow(&m_Demo);
 }
 

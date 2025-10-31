@@ -9,5 +9,7 @@ public:
     bool Init();
     SDL_Window* GetWindowRaw();
     SDL_GLContext GetContextRaw();
+    void Clear();
+    void SwapBuffers();
     void Exit();
 };

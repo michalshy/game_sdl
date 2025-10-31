@@ -2,13 +2,10 @@
 
 #include <SDL_render.h>
 #include <SDL_video.h>
+#include "glm/glm.hpp"
+
 class Renderer
 {
-    SDL_Window* m_Window;
-    SDL_GLContext m_Context;
 public:
-    bool Init(SDL_Window* window, SDL_GLContext m_Context);
-    void PreRender();
-    void PostRender();
-    void Exit();
+    static void DrawQuad(const glm::mat4 transform, const glm::vec4 color);
 };

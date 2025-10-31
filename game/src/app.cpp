@@ -3,30 +3,26 @@
 #include <SDL2/SDL_image.h>
 #include <spdlog/spdlog.h>
 #include "log.h"
-#include "game.h"
+#include "app.h"
 
 
-Game::Game()
+App::App()
 {
     window = std::make_unique<Window>();
-    renderer = std::make_unique<Renderer>();
-
+    game = std::make_unique<Game>();
 #ifdef BUILD_WITH_EDITOR
     editor = std::make_unique<Editor>();
 #endif
 }
 
-bool Game::Init()
+bool App::Init()
 {
     spdlog::set_level(LOG_LEVEL_DEBUG);
 
-    if (!window || !renderer)
+    if (!window || !window->Init())
         return false;
 
-    if(!window->Init())
-        return false;
-
-    if(!renderer->Init(window->GetWindowRaw(), window->GetContextRaw()))
+    if (!game || !game->Init())
         return false;
 
 #ifdef BUILD_WITH_EDITOR
@@ -37,12 +33,10 @@ bool Game::Init()
     LOG_DEBUG("Initialized Game");
 #endif
     initialized = true;
-
-
     return true;
 }
 
-void Game::Run()
+void App::Run()
 {
     if(!initialized)
         return;
@@ -52,30 +46,23 @@ void Game::Run()
         PollEvents();
         OnFrame();
 
-#ifdef BUILD_WITH_EDITOR
-        editor->Run();
-#endif
-
-        // game actions
-
-        Render();
+        PostFrame();
     }
 
     Exit();
 }
 
-void Game::Exit()
+void App::Exit()
 {
 #ifdef BUILD_WITH_EDITOR
     editor->Exit();
 #endif
-    renderer->Exit();
     window->Exit();
 
     SDL_Quit();
 }
 
-void Game::PollEvents()
+void App::PollEvents()
 {
     SDL_Event e;
     while(SDL_PollEvent(&e) != 0)
@@ -90,21 +77,22 @@ void Game::PollEvents()
     }
 }
 
-void Game::OnFrame()
+void App::OnFrame()
 {
 #ifdef BUILD_WITH_EDITOR
     editor->OnFrame();
 #endif
+    game->OnFrame();
 }
 
-void Game::Render()
+void App::PostFrame()
 {
 #ifdef BUILD_WITH_EDITOR
     editor->PreRender();
 #endif
-    renderer->PreRender();
+    window->Clear();
 #ifdef BUILD_WITH_EDITOR
     editor->PostRender();
 #endif
-    renderer->PostRender();
+    window->SwapBuffers();
 }

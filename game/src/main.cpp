@@ -1,11 +1,11 @@
-#include "gameplay/game.h"
+#include "app.h"
 
 int main(int, char*[]) {
 
-    Game game;
-    if(!game.Init())
+    App app;
+    if(!app.Init())
         return 1;
 
-    game.Run();
+    app.Run();
     return 0;
 }

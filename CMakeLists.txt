@@ -13,6 +13,8 @@ find_package(Threads REQUIRED)
 find_package(spdlog CONFIG REQUIRED)
 find_package(glm CONFIG REQUIRED)
 
+add_subdirectory(vendor/entt)
+
 add_subdirectory(engine)
 add_subdirectory(game)
 

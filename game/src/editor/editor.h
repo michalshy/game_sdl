@@ -10,7 +10,6 @@ class Editor
 public:
     bool Init(SDL_Window* window, SDL_GLContext context);
     void OnFrame();
-    void Run();
     void PreRender();
     void PostRender();
     void Exit();

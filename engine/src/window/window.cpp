@@ -69,6 +69,20 @@ SDL_GLContext Window::GetContextRaw()
     return m_Context;
 }
 
+void Window::SwapBuffers()
+{
+    SDL_GL_SwapWindow(m_Window);
+}
+
+void Window::Clear()
+{
+    int display_w, display_h;
+    SDL_GL_GetDrawableSize(m_Window, &display_w, &display_h);
+    glViewport(0, 0, display_w, display_h);
+    glClearColor(0.1f, 0.12f, 0.15f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+}
+
 void Window::Exit()
 {
     SDL_DestroyWindow(m_Window);
