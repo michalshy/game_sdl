@@ -34,7 +34,8 @@ void Editor::OnFrame()
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplSDL2_NewFrame();
     ImGui::NewFrame();
-    if (m_Demo) ImGui::ShowDemoWindow(&m_Demo);
+
+    UpdateUI();
 }
 
 void Editor::PreRender()
@@ -49,7 +50,6 @@ void Editor::PostRender()
     if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
         ImGui::UpdatePlatformWindows();
         ImGui::RenderPlatformWindowsDefault();
-        // Make sure we restore current context if RenderPlatformWindowsDefault changed it.
         SDL_GL_MakeCurrent(m_Window, m_Context);
     }
 }
@@ -66,3 +66,11 @@ void Editor::PollEvents(SDL_Event& event)
     ImGui_ImplSDL2_ProcessEvent(&event);
 }
 
+void Editor::UpdateUI()
+{
+    ImGui::Begin("Tiny Helper");
+    ImGui::Text("Welcome to Tiny Helper!");
+    ImGui::Text("Simple In-Game tool to view and tweak some values");
+    
+    ImGui::End();
+}

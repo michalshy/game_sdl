@@ -4,7 +4,6 @@
 
 class Editor
 {
-    bool m_Demo = true;
     SDL_GLContext m_Context;
     SDL_Window* m_Window;
 public:
@@ -14,4 +13,6 @@ public:
     void PostRender();
     void Exit();
     void PollEvents(SDL_Event& event);
+private:
+    void UpdateUI();
 };
