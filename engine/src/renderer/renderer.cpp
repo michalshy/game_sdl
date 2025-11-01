@@ -104,22 +104,22 @@ void Renderer::PostFrame()
     SDL_GL_SwapWindow(s_Data->window_raw);
 }
 
-void Renderer::DrawQuad(const glm::mat4& transform, const glm::vec4& color)
+void Renderer::Bind()
 {
-    if (s_Data->QuadShader.GetId() == 0) {
-        std::cerr << "Renderer not initialized!" << std::endl;
-        return;
-    }
-    
     s_Data->QuadShader.Use();
     glBindVertexArray(s_Data->QuadVAO);
+}
 
+void Renderer::DrawQuad(const glm::mat4& transform, const glm::vec4& color)
+{
     s_Data->QuadShader.SetMat4("u_Transform", transform);
     s_Data->QuadShader.SetMat4("u_ViewProjection", s_Data->ProjectionMatrix);
     s_Data->QuadShader.SetFloat4("u_Color", color.r, color.g, color.b, color.a);
-
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr); 
+}
 
+void Renderer::Unbind()
+{
     glBindVertexArray(0);
     glUseProgram(0);
 }

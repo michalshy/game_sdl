@@ -2,20 +2,23 @@
 
 // Level class of Lightbringer Game
 // Simple grid defined by cellular automata algorithm
-#include "level_consts.h"
+#include "map_consts.h"
+#include "scene/scene.h"
 #include <vector>
-class Level
+class Map
 {
     // Leaving int here since 
     // it might be used as different types of obstacles
+    int seed;
     std::vector<std::vector<int>> map_grid;
 public:
-    Level();
-    bool InitLevel();
-
+    Map();
+    bool Init(Scene* scene);
+    void Draw();
+    int GetSeed();
 private:
-    bool InitMap();
+    bool InitMap(Scene* scene);
     bool Birth(int y, int x);
     bool Survival(int y, int x);
-    void PrintMap();
+    void DefineEntites(Scene* scene);
 };

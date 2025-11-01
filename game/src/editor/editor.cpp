@@ -94,14 +94,20 @@ void Editor::UpdateUI()
     ImGui::Text("Welcome to Tiny Helper!");
     ImGui::Text("Simple In-Game tool to view and tweak some values");
     ImGui::Separator();
+
+    ImGui::Text("Game params");
+    ImGui::Text("Map seed: %d", m_Game->m_Map->GetSeed());
+    ImGui::Text("Frame rate: %.3f", 1.0f/m_Game->m_DeltaTime);
+    ImGui::Separator();
+
     ImGui::Text("Mouse params");
     int x, y; 
     SDL_GetMouseState(&x, &y);
     ImGui::Text("X: %d, Y: %d", x, y);
     ImGui::Separator();
+    
     ImGui::Text("Camera params");
     ImGui::Text("ViewProjectile Matrix");
-    ImGui::SameLine();
     ShowMatrix(m_Game->m_Camera->GetViewMatrix());
 
     ImGui::Separator();

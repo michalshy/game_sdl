@@ -1,15 +1,22 @@
-#include "level.h"
-#include "level_consts.h"
+#include "map.h"
+#include "map_consts.h"
 #include "log.h"
+#include <glm/ext/matrix_transform.hpp>
+#include <glm/ext/vector_float2.hpp>
 #include <string>
 #include <random>
+#include "renderer/renderer.h"
+#include "scene/components.h"
+#include "glm/glm.hpp"
+#include "scene/entity.h"
 
 constexpr float wall_chance = 0.45f;
 constexpr int iterations = 10;
 constexpr int survival_threshold = 3;
 constexpr int birth_threshold = 6;
+constexpr int tile_size = 10;
 
-Level::Level()
+Map::Map()
 {
     for(int y = 0; y < GRID_DIMENSIONS.y; y++)
     {
@@ -21,19 +28,24 @@ Level::Level()
     }  
 }
 
-bool Level::InitLevel()
+bool Map::Init(Scene* scene)
 {
-    if(!InitMap())
+    if(!InitMap(scene))
         return false;
 
     LOG_DEBUG("Initialized Level");
     return true;
 }
 
-bool Level::InitMap()
+int Map::GetSeed()
 {
-    unsigned int seed = std::random_device{}();
-    seed = 4164015880;
+    return seed;
+}
+
+bool Map::InitMap(Scene* scene)
+{
+    seed = std::random_device{}();
+    //seed = 4164015880;
     LOG_DEBUG("Creating level for seed: {}", seed);
     std::mt19937 rng(seed);
     std::uniform_real_distribution<> dist(0.0f,1.0f);
@@ -63,11 +75,11 @@ bool Level::InitMap()
         } 
     }
 
-    PrintMap();
+    DefineEntites(scene);
     return true;
 }
 
-bool Level::Birth(int y, int x)
+bool Map::Birth(int y, int x)
 {
     int neighbours = 0;
     if(map_grid[y-1][x])
@@ -90,7 +102,7 @@ bool Level::Birth(int y, int x)
     return neighbours >= birth_threshold;
 }
 
-bool Level::Survival(int y, int x)
+bool Map::Survival(int y, int x)
 {
     int neighbours = 0;
     if(map_grid[y-1][x])
@@ -113,16 +125,23 @@ bool Level::Survival(int y, int x)
     return neighbours >= survival_threshold;
 }
 
-void Level::PrintMap()
+void Map::DefineEntites(Scene* scene)
 {
-    std::string cols = "";
+    glm::vec3 start_position = {0.0f, 0.0f, 0.0f};
     for(const auto& row : map_grid)
     {
-        cols = "";
         for(const auto& column : row)
         {
-            cols += std::to_string(column);
+            Entity quad = scene->CreateEntity();
+            glm::vec3 scale = {tile_size, tile_size, 1.0f};
+            glm::mat4 model = glm::mat4(1.0f);
+            model = glm::translate(model, start_position);
+            model = glm::scale(model, scale);
+            quad.AddComponent<CoTransform>(model);
+            quad.AddComponent<CoSprite>(column == 1 ? glm::vec4{0.0f, 0.0f, 0.0f, 1.0f} : glm::vec4{1.0f, 1.0f, 1.0f, 1.0f});
+            
+            start_position += glm::vec3(tile_size, 0, 0);
         }
-        LOG_DEBUG(cols);
+        start_position += glm::vec3(-start_position.x, tile_size, 0);
     }
 }

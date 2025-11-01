@@ -4,9 +4,8 @@
 
 class Timer
 {
-    bool m_Running;
     float m_DeltaTime;
-    std::chrono::time_point<std::chrono::system_clock> m_LastTime;
+    std::chrono::time_point<std::chrono::steady_clock> m_LastTime;
 public:
     Timer() = default;
     bool Init();

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "camera/camera.h"
-#include "game/level/level.h"
+#include "game/map/map.h"
 #include "scene/scene.h"
 #include <SDL_events.h>
 #include <memory>
@@ -12,8 +12,10 @@ class Game
     friend class Editor;
 
     std::unique_ptr<Scene> m_Scene = nullptr;
-    std::unique_ptr<Level> m_Level = nullptr; // math representation of level
+    std::unique_ptr<Map> m_Map = nullptr; // math representation of level
     std::unique_ptr<Camera> m_Camera = nullptr;
+
+    float m_DeltaTime;
 public:
     Game();
     bool Init();

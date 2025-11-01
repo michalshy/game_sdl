@@ -13,7 +13,7 @@
 Game::Game()
 {
     m_Scene = std::make_unique<Scene>();
-    m_Level = std::make_unique<Level>();
+    m_Map = std::make_unique<Map>();
     m_Camera = std::make_unique<Camera>(1280.0f, 720.0f);
 }
 
@@ -22,34 +22,27 @@ bool Game::Init()
     if(!m_Scene)
         return false;
 
-    if(!m_Level || !m_Level->InitLevel())
+    if(!m_Map || !m_Map->Init(m_Scene.get()))
         return false;
-
-    // lets add some debug entites
-    Entity quad = m_Scene->CreateEntity();
-    quad.AddComponent<CoSprite>();
-    glm::vec3 position = {1280.0f / 2.0f, 720.0f / 2.0f, 0.0f};
-    glm::vec3 scale = {100.0f, 100.0f, 1.0f};
-    glm::mat4 model = glm::mat4(1.0f);
-    model = glm::translate(model, position);
-    model = glm::scale(model, scale);
-    quad.AddComponent<CoTransform>(model);
 
     return true;
 }
 
 void Game::Update(float delta_time)
 {
-
+    m_DeltaTime = delta_time;
 }
 
 void Game::Draw()
 {
     Renderer::SetProjectionMatrix(m_Camera->GetViewProjectionMatrix());
+
+    Renderer::Bind();
     for(auto [ent, sprite, transform] : m_Scene->View<CoSprite, CoTransform>().each())
     {
         Renderer::DrawQuad(transform.transform, sprite.color);
     }
+    Renderer::Unbind();
 }
 
 void Game::PollEvents(SDL_Event& /*e*/)
