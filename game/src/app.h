@@ -27,5 +27,6 @@ public:
 private:
     void PollEvents();
     void OnFrame();
+    void EndFrame();
     void PostFrame();
 };

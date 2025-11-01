@@ -4,7 +4,7 @@
 #include <spdlog/spdlog.h>
 #include "log.h"
 #include "app.h"
-
+#include "renderer/renderer.h"
 
 App::App()
 {
@@ -19,11 +19,16 @@ bool App::Init()
 {
     spdlog::set_level(LOG_LEVEL_DEBUG);
 
+    
     if (!window || !window->Init())
         return false;
 
     if (!game || !game->Init())
         return false;
+
+    if (!Renderer::Init(window->GetWindowRaw()))
+        return false;
+    
 
 #ifdef BUILD_WITH_EDITOR
 
@@ -44,9 +49,13 @@ void App::Run()
     while(!quit)
     {
         PollEvents();
-        OnFrame();
-
-        PostFrame();
+        
+        Renderer::SetClearColor({0.1f, 0.12f, 0.15f, 1.0f});
+        Renderer::BeginFrame(); 
+        OnFrame(); 
+        
+        EndFrame();  
+        PostFrame(); 
     }
 
     Exit();
@@ -54,10 +63,13 @@ void App::Run()
 
 void App::Exit()
 {
+    Renderer::Shutdown();
+
 #ifdef BUILD_WITH_EDITOR
     editor->Exit();
 #endif
     window->Exit();
+
 
     SDL_Quit();
 }
@@ -85,14 +97,18 @@ void App::OnFrame()
     game->OnFrame();
 }
 
+void App::EndFrame()
+{
+#ifdef BUILD_WITH_EDITOR
+    editor->EndFrame();
+#endif
+    Renderer::EndFrame();
+}
+
 void App::PostFrame()
 {
 #ifdef BUILD_WITH_EDITOR
-    editor->PreRender();
+    editor->PostFrame();
 #endif
-    window->Clear();
-#ifdef BUILD_WITH_EDITOR
-    editor->PostRender();
-#endif
-    window->SwapBuffers();
+    Renderer::PostFrame();
 }

@@ -9,8 +9,8 @@ class Editor
 public:
     bool Init(SDL_Window* window, SDL_GLContext context);
     void OnFrame();
-    void PreRender();
-    void PostRender();
+    void EndFrame();
+    void PostFrame();
     void Exit();
     void PollEvents(SDL_Event& event);
 private:

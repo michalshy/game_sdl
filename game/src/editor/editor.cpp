@@ -31,21 +31,24 @@ bool Editor::Init(SDL_Window* window, SDL_GLContext context)
 
 void Editor::OnFrame()
 {
+    // ImGui Start of Frame (Your 'New Frame' equivalent)
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplSDL2_NewFrame();
     ImGui::NewFrame();
-
+    
+    // Now build the UI tree (Create your windows)
     UpdateUI();
-}
 
-void Editor::PreRender()
-{
     ImGui::Render();
 }
 
-void Editor::PostRender()
+void Editor::EndFrame()
 {
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+}
+
+void Editor::PostFrame()
+{
     ImGuiIO& io = ImGui::GetIO(); 
     if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
         ImGui::UpdatePlatformWindows();
