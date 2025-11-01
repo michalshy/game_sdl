@@ -5,11 +5,13 @@
 #include "log.h"
 #include "app.h"
 #include "renderer/renderer.h"
+#include "timer/timer.h"
 
 App::App()
 {
     window = std::make_unique<Window>();
     game = std::make_unique<Game>();
+    timer = std::make_unique<Timer>();
 #ifdef BUILD_WITH_EDITOR
     editor = std::make_unique<Editor>();
 #endif
@@ -18,7 +20,6 @@ App::App()
 bool App::Init()
 {
     spdlog::set_level(LOG_LEVEL_DEBUG);
-
     
     if (!window || !window->Init())
         return false;
@@ -28,11 +29,13 @@ bool App::Init()
 
     if (!Renderer::Init(window->GetWindowRaw()))
         return false;
-    
+
+    if (!timer || !timer->Init())
+        return false;
 
 #ifdef BUILD_WITH_EDITOR
 
-    if(!editor || !editor->Init(window->GetWindowRaw(), window->GetContextRaw()))
+    if(!editor || !editor->Init(game.get(), window->GetWindowRaw(), window->GetContextRaw()))
     LOG_DEBUG("Initialized Game with editor");
 #else
     LOG_DEBUG("Initialized Game");
@@ -46,13 +49,16 @@ void App::Run()
     if(!initialized)
         return;
 
+    timer->Start();
+
     while(!quit)
     {
-        PollEvents();
+        float delta_time = timer->Delta();
+        PollEvents(delta_time);
         
         Renderer::SetClearColor({0.1f, 0.12f, 0.15f, 1.0f});
         Renderer::BeginFrame(); 
-        OnFrame(); 
+        OnFrame(delta_time); 
         
         EndFrame();  
         PostFrame(); 
@@ -74,13 +80,14 @@ void App::Exit()
     SDL_Quit();
 }
 
-void App::PollEvents()
+void App::PollEvents(float delta_time)
 {
     SDL_Event e;
     while(SDL_PollEvent(&e) != 0)
     {
+        game->PollEvents(e);
 #ifdef BUILD_WITH_EDITOR
-        editor->PollEvents(e);
+        editor->PollEvents(e, delta_time);
 #endif
         if(e.type == SDL_QUIT)
             quit = true;
@@ -89,12 +96,13 @@ void App::PollEvents()
     }
 }
 
-void App::OnFrame()
+void App::OnFrame(float delta_time)
 {
+    game->Update(delta_time);
 #ifdef BUILD_WITH_EDITOR
     editor->OnFrame();
 #endif
-    game->OnFrame();
+    game->Draw();
 }
 
 void App::EndFrame()

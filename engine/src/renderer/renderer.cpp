@@ -88,6 +88,12 @@ void Renderer::SetClearColor(const glm::vec4& color)
     glClearColor(color.r, color.g, color.b, color.a);
 }
 
+void Renderer::SetProjectionMatrix(const glm::mat4& matrix)
+{
+    s_Data->ProjectionMatrix = matrix;
+}
+
+
 void Renderer::EndFrame()
 {
     // tbd

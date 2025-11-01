@@ -2,11 +2,16 @@
 
 #include "imgui.h"
 #include "imgui_impl_opengl3.h"
+#include <SDL_events.h>
 
-bool Editor::Init(SDL_Window* window, SDL_GLContext context)
+bool Editor::Init(Game* game, SDL_Window* window, SDL_GLContext context)
 {
     m_Context = context;
     m_Window = window;
+    m_Game = game;
+
+    if(!m_Game || !m_Context || !m_Window)
+        return false;
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -64,9 +69,24 @@ void Editor::Exit()
     ImGui::DestroyContext();
 }
 
-void Editor::PollEvents(SDL_Event& event)
+void Editor::PollEvents(SDL_Event& e, float delta_time)
 {
-    ImGui_ImplSDL2_ProcessEvent(&event);
+    ImGui_ImplSDL2_ProcessEvent(&e);
+    int mouse_x, mouse_y;
+    SDL_GetMouseState(&mouse_x, &mouse_y);
+
+    if(m_CamOpt.free_cam)
+    {
+        if(e.type == SDL_MOUSEWHEEL)
+        {
+            HandleMouseWheel((float)e.wheel.y, (float)mouse_x, (float)mouse_y);
+        }
+        else if (e.type == SDL_KEYDOWN)
+        {
+            HandleKeyDown(e, delta_time);
+        }
+
+    }
 }
 
 void Editor::UpdateUI()
@@ -74,6 +94,40 @@ void Editor::UpdateUI()
     ImGui::Begin("Tiny Helper");
     ImGui::Text("Welcome to Tiny Helper!");
     ImGui::Text("Simple In-Game tool to view and tweak some values");
+
+    if(ImGui::CollapsingHeader("Camera Options"))
+    {
+        ImGui::Checkbox("Enable free camera", &m_CamOpt.free_cam);
+    }
+
+    if(ImGui::CollapsingHeader("Map Visualizer"))
+    {
+
+    }
+
+    if(ImGui::CollapsingHeader("Entites tweaker"))
+    {
+
+    }
     
     ImGui::End();
+}
+
+void Editor::HandleMouseWheel(float w, float mouse_x, float mouse_y)
+{
+    m_Game->m_Camera->ProcessMouseScroll(w, mouse_x, mouse_y);
+}
+
+void Editor::HandleKeyDown(SDL_Event& e, float delta_time)
+{
+    const Uint8* state = SDL_GetKeyboardState(NULL);
+
+    if (state[SDL_SCANCODE_W])
+        m_Game->m_Camera->ProcessKeyboard(UP, delta_time);
+    if (state[SDL_SCANCODE_S])
+        m_Game->m_Camera->ProcessKeyboard(DOWN, delta_time);
+    if (state[SDL_SCANCODE_A])
+        m_Game->m_Camera->ProcessKeyboard(LEFT, delta_time);
+    if (state[SDL_SCANCODE_D])
+        m_Game->m_Camera->ProcessKeyboard(RIGHT, delta_time);
 }

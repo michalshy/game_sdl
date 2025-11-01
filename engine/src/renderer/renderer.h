@@ -19,6 +19,7 @@ public:
     static void PostFrame();  
     
     static void SetClearColor(const glm::vec4& color);
+    static void SetProjectionMatrix(const glm::mat4& matrix);
     
     static void DrawQuad(const glm::mat4& transform, const glm::vec4& color);
 
