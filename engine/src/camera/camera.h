@@ -23,6 +23,9 @@ class Camera
     
     glm::vec3 m_WorldUp = {0.0f, 1.0f, 0.0f}; // Up is fixed
     glm::vec3 m_Right = {1.0f, 0.0f, 0.0f};   // Right is fixed
+    
+    float m_ViewportWidth;
+    float m_ViewportHeight;
 public:
     // New constructor for 2D Orthographic Camera
     Camera(float width, float height); 

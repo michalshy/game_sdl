@@ -3,6 +3,8 @@
 #include "imgui.h"
 #include "imgui_impl_opengl3.h"
 #include <SDL_events.h>
+#include <SDL_mouse.h>
+#include <fmt/format.h>
 
 bool Editor::Init(Game* game, SDL_Window* window, SDL_GLContext context)
 {
@@ -81,10 +83,7 @@ void Editor::PollEvents(SDL_Event& e, float delta_time)
         {
             HandleMouseWheel((float)e.wheel.y, (float)mouse_x, (float)mouse_y);
         }
-        else if (e.type == SDL_KEYDOWN)
-        {
-            HandleKeyDown(e, delta_time);
-        }
+        HandleKeyDown(delta_time);
 
     }
 }
@@ -94,6 +93,19 @@ void Editor::UpdateUI()
     ImGui::Begin("Tiny Helper");
     ImGui::Text("Welcome to Tiny Helper!");
     ImGui::Text("Simple In-Game tool to view and tweak some values");
+    ImGui::Separator();
+    ImGui::Text("Mouse params");
+    int x, y; 
+    SDL_GetMouseState(&x, &y);
+    ImGui::Text("X: %d, Y: %d", x, y);
+    ImGui::Separator();
+    ImGui::Text("Camera params");
+    ImGui::Text("ViewProjectile Matrix");
+    ImGui::SameLine();
+    ShowMatrix(m_Game->m_Camera->GetViewMatrix());
+
+    ImGui::Separator();
+
 
     if(ImGui::CollapsingHeader("Camera Options"))
     {
@@ -118,7 +130,7 @@ void Editor::HandleMouseWheel(float w, float mouse_x, float mouse_y)
     m_Game->m_Camera->ProcessMouseScroll(w, mouse_x, mouse_y);
 }
 
-void Editor::HandleKeyDown(SDL_Event& e, float delta_time)
+void Editor::HandleKeyDown(float delta_time)
 {
     const Uint8* state = SDL_GetKeyboardState(NULL);
 
@@ -130,4 +142,13 @@ void Editor::HandleKeyDown(SDL_Event& e, float delta_time)
         m_Game->m_Camera->ProcessKeyboard(LEFT, delta_time);
     if (state[SDL_SCANCODE_D])
         m_Game->m_Camera->ProcessKeyboard(RIGHT, delta_time);
+}
+
+void Editor::ShowMatrix(const glm::mat4& mat)
+{
+    for (int i = 0; i < 4; i++)
+    {
+        ImGui::Text("%.3f %.3f %.3f %.3f",
+            mat[i][0], mat[i][1], mat[i][2], mat[i][3]);
+    }
 }

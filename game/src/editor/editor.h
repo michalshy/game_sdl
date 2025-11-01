@@ -24,6 +24,6 @@ public:
 private:
     void UpdateUI();
     void HandleMouseWheel(float w, float mouse_x, float mouse_y); 
-    void HandleKeyDown(SDL_Event& e, float delta_time);
-
+    void HandleKeyDown(float delta_time);
+    void ShowMatrix(const glm::mat4& mat);
 };
