@@ -2,6 +2,7 @@
 
 #include "camera/camera.h"
 #include "game/map/map.h"
+#include "game/player/player.h"
 #include "scene/scene.h"
 #include <SDL_events.h>
 #include <memory>
@@ -14,6 +15,7 @@ class Game
     std::unique_ptr<Scene> m_Scene = nullptr;
     std::unique_ptr<Map> m_Map = nullptr; // math representation of level
     std::unique_ptr<Camera> m_Camera = nullptr;
+    std::unique_ptr<Player> m_Player = nullptr;
 
     float m_DeltaTime;
 public:

@@ -11,7 +11,6 @@ constexpr float wall_chance = 0.45f;
 constexpr int iterations = 10;
 constexpr int survival_threshold = 3;
 constexpr int birth_threshold = 6;
-constexpr int tile_size = 10;
 
 Map::Map()
 {
@@ -72,6 +71,15 @@ bool Map::InitMap(Scene* scene)
         } 
     }
 
+    // Now we want to get to the middle of the map and declare empty square for the castle
+    for(int i = 0; i < CASTLE_SIZE; i++)
+    {
+        for(int j = 0; j < CASTLE_SIZE; j++)
+        {
+            map_grid[GRID_DIMENSIONS.y/2 - CASTLE_SIZE/2 + i][GRID_DIMENSIONS.x/2 - CASTLE_SIZE/2 + j] = 0;
+        }   
+    }
+
     DefineEntites(scene);
     return true;
 }
@@ -130,15 +138,15 @@ void Map::DefineEntites(Scene* scene)
         for(const auto& column : row)
         {
             Entity quad = scene->CreateEntity();
-            glm::vec3 scale = {tile_size, tile_size, 1.0f};
+            glm::vec3 scale = {TILE_SIZE, TILE_SIZE, 1.0f};
             glm::mat4 model = glm::mat4(1.0f);
             model = glm::translate(model, start_position);
             model = glm::scale(model, scale);
             quad.AddComponent<CoTransform>(model);
             quad.AddComponent<CoSprite>(column == 1 ? glm::vec4{0.0f, 0.0f, 0.0f, 1.0f} : glm::vec4{1.0f, 1.0f, 1.0f, 1.0f});
             
-            start_position += glm::vec3(tile_size, 0, 0);
+            start_position += glm::vec3(TILE_SIZE, 0, 0);
         }
-        start_position += glm::vec3(-start_position.x, tile_size, 0);
+        start_position += glm::vec3(-start_position.x, TILE_SIZE, 0);
     }
 }

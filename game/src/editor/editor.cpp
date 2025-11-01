@@ -38,7 +38,8 @@ bool Editor::Init(Game* game, SDL_Window* window, SDL_GLContext context)
 
 void Editor::OnFrame(float delta_time)
 {
-    HandleKeyDown(delta_time);
+    if(m_CamOpt.free_cam)
+        HandleKeyDown(delta_time);
 
     // ImGui Start of Frame (Your 'New Frame' equivalent)
     ImGui_ImplOpenGL3_NewFrame();
@@ -115,7 +116,10 @@ void Editor::UpdateUI()
 
     if(ImGui::CollapsingHeader("Camera Options"))
     {
-        ImGui::Checkbox("Enable free camera", &m_CamOpt.free_cam);
+        if(ImGui::Checkbox("Enable free camera", &m_CamOpt.free_cam))
+        {
+            m_CamOpt.free_cam == true ? m_Game->m_Player->ToggleInput(false) : m_Game->m_Player->ToggleInput(true);
+        }
     }
 
     if(ImGui::CollapsingHeader("Map Visualizer"))

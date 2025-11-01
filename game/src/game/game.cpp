@@ -12,6 +12,7 @@ Game::Game()
     m_Scene = std::make_unique<Scene>();
     m_Map = std::make_unique<Map>();
     m_Camera = std::make_unique<Camera>(1280.0f, 720.0f);
+    m_Player = std::make_unique<Player>(m_Scene->CreateEntity());
 }
 
 bool Game::Init()
@@ -28,6 +29,8 @@ bool Game::Init()
 void Game::Update(float delta_time)
 {
     m_DeltaTime = delta_time;
+
+    m_Player->HandleInput(m_DeltaTime);
 }
 
 void Game::Draw()
