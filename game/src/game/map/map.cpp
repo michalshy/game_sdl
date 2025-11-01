@@ -3,11 +3,8 @@
 #include "log.h"
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/ext/vector_float2.hpp>
-#include <string>
 #include <random>
-#include "renderer/renderer.h"
 #include "scene/components.h"
-#include "glm/glm.hpp"
 #include "scene/entity.h"
 
 constexpr float wall_chance = 0.45f;

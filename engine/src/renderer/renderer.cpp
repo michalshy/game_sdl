@@ -1,8 +1,6 @@
 #include "renderer.h"
 #include <GL/glew.h>
-#include "window/window.h"
 #include <glm/ext/matrix_clip_space.hpp>
-#include <iostream>
 
 std::unique_ptr<Renderer::RendererData> Renderer::s_Data = nullptr;
 
@@ -112,9 +110,11 @@ void Renderer::Bind()
 
 void Renderer::DrawQuad(const glm::mat4& transform, const glm::vec4& color)
 {
+
     s_Data->QuadShader.SetMat4("u_Transform", transform);
     s_Data->QuadShader.SetMat4("u_ViewProjection", s_Data->ProjectionMatrix);
     s_Data->QuadShader.SetFloat4("u_Color", color.r, color.g, color.b, color.a);
+
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr); 
 }
 

@@ -1,5 +1,5 @@
 #pragma once
-#include "glm/glm.hpp"
+#include <glm/ext/matrix_float4x4.hpp>
 #include <string>
 class Shader
 {
@@ -16,5 +16,6 @@ public:
     void SetVec3(const std::string& name, float x, float y, float z) const;
     void SetVec3(const std::string& name, glm::vec3& vec) const;
     void SetVec3(const std::string& name, const glm::vec3& vec) const;
+    void SetIntArray(const char* name, int* values, int count) const;
     int GetId();
 };

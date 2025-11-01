@@ -1,8 +1,8 @@
 #include "window.h"
+#include "log.h"
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_render.h>
 #include <SDL_video.h>
-#include <iostream>
 #include <GL/glew.h>
 
 constexpr int SCREEN_WIDTH = 1280;
@@ -11,14 +11,14 @@ constexpr int SCREEN_HEIGHT = 720;
 bool Window::Init()
 {
     if((SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_GAMECONTROLLER) < 0) {
-        std::cout << "SDL Could not initialize! SDL Error: " << SDL_GetError() << std::endl;
+        LOG_ERROR("SDL Could not initialize! SDL Error: {}", SDL_GetError());
         return false;
     }
     else {
 
         if(!SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1"))
         {
-            std::cout << "Warning: Linear texture filtering not enabled!" << std::endl;
+            LOG_WARN("Warning: Linear texture filtering not enabled!");
         }
 
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, 0);
@@ -34,13 +34,13 @@ bool Window::Init()
                                           SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
                                           SCREEN_WIDTH, SCREEN_HEIGHT, window_flags);
         if(!m_Window) {
-            std::cout << "Window could not be created! SDL Error: " << SDL_GetError() << std::endl;
+            LOG_ERROR("Window could not be created! SDL Error: {}", SDL_GetError());
             return false;
         }
         else {
             m_Context = SDL_GL_CreateContext(m_Window);
             if (!m_Context) {
-                std::cout << "Error: SDL_GL_CreateContext failed: " << SDL_GetError() << std::endl;
+                LOG_ERROR("Error: SDL_GL_CreateContext failed: {}", SDL_GetError());
                 return false;
             }
             SDL_GL_MakeCurrent(m_Window, m_Context);
@@ -48,7 +48,7 @@ bool Window::Init()
             glewExperimental = GL_TRUE;
             GLenum glew_err = glewInit();
             if (glew_err != GLEW_OK) {
-                std::cout << "Error: glewInit failed: " << glewGetErrorString(glew_err) << std::endl;
+                LOG_ERROR("Error: glewInit failed: {}", SDL_GetError());
                 return false;
             }
 

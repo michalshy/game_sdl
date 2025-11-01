@@ -1,14 +1,11 @@
 #include "game.h"
 #include "camera/camera.h"
-#include "log.h"
 #include "scene/scene.h"
-#include "scene/entity.h"
 #include "scene/components.h"
 #include "renderer/renderer.h"
 #include <SDL_events.h>
 #include <glm/ext/matrix_transform.hpp>
 #include <memory>
-#include "glm/glm.hpp"
 
 Game::Game()
 {

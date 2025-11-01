@@ -1,6 +1,6 @@
 #include "camera.h"
 
-constexpr float SPEED = 10.0f;
+constexpr float SPEED = 100.0f;
 
 Camera::Camera(float width, float height)
     : m_Zoom(1.0f), m_MovementSpeed(SPEED),
@@ -45,6 +45,12 @@ glm::mat4 Camera::GetViewMatrix()
 {
     RecalculateViewProjectionMatrix();
     return m_ViewMatrix;
+}
+
+glm::mat4 Camera::GetViewProjectionMatrix()
+{
+    RecalculateViewProjectionMatrix();
+    return m_ViewProjectionMatrix;
 }
 
 void Camera::ProcessKeyboard(Camera_Movement direction, float delta_time)

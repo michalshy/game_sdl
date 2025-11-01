@@ -36,13 +36,15 @@ bool Editor::Init(Game* game, SDL_Window* window, SDL_GLContext context)
     return true;
 }
 
-void Editor::OnFrame()
+void Editor::OnFrame(float delta_time)
 {
+    HandleKeyDown(delta_time);
+
     // ImGui Start of Frame (Your 'New Frame' equivalent)
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplSDL2_NewFrame();
     ImGui::NewFrame();
-    
+
     // Now build the UI tree (Create your windows)
     UpdateUI();
 
@@ -71,7 +73,7 @@ void Editor::Exit()
     ImGui::DestroyContext();
 }
 
-void Editor::PollEvents(SDL_Event& e, float delta_time)
+void Editor::PollEvents(SDL_Event& e)
 {
     ImGui_ImplSDL2_ProcessEvent(&e);
     int mouse_x, mouse_y;
@@ -83,8 +85,6 @@ void Editor::PollEvents(SDL_Event& e, float delta_time)
         {
             HandleMouseWheel((float)e.wheel.y, (float)mouse_x, (float)mouse_y);
         }
-        HandleKeyDown(delta_time);
-
     }
 }
 

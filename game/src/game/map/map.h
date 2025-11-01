@@ -2,7 +2,6 @@
 
 // Level class of Lightbringer Game
 // Simple grid defined by cellular automata algorithm
-#include "map_consts.h"
 #include "scene/scene.h"
 #include <vector>
 class Map

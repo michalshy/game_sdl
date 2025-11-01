@@ -28,7 +28,7 @@ public:
     void Run();
     void Exit();
 private:
-    void PollEvents(float delta_time);
+    void PollEvents();
     void OnFrame(float delta_time);
     void EndFrame();
     void PostFrame();

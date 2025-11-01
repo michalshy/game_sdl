@@ -54,7 +54,7 @@ void App::Run()
     while(!quit)
     {
         float delta_time = timer->Delta();
-        PollEvents(delta_time);
+        PollEvents();
         
         Renderer::SetClearColor({0.1f, 0.12f, 0.15f, 1.0f});
         Renderer::BeginFrame(); 
@@ -80,14 +80,14 @@ void App::Exit()
     SDL_Quit();
 }
 
-void App::PollEvents(float delta_time)
+void App::PollEvents()
 {
     SDL_Event e;
     while(SDL_PollEvent(&e) != 0)
     {
         game->PollEvents(e);
 #ifdef BUILD_WITH_EDITOR
-        editor->PollEvents(e, delta_time);
+        editor->PollEvents(e);
 #endif
         if(e.type == SDL_QUIT)
             quit = true;
@@ -100,7 +100,7 @@ void App::OnFrame(float delta_time)
 {
     game->Update(delta_time);
 #ifdef BUILD_WITH_EDITOR
-    editor->OnFrame();
+    editor->OnFrame(delta_time);
 #endif
     game->Draw();
 }

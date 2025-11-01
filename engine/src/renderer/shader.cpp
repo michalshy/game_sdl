@@ -124,6 +124,9 @@ void Shader::SetVec3(const std::string& name, const glm::vec3& vec) const
 {
 	glUniform3fv(glGetUniformLocation(ID, name.c_str()), 1, glm::value_ptr(vec));
 }
+void Shader::SetIntArray(const char* name, int* values, int count) const {
+        glUniform1iv(glGetUniformLocation(ID, name), count, values);
+    }
 
 int Shader::GetId()
 {

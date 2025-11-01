@@ -16,11 +16,11 @@ class Editor
 
 public:
     bool Init(Game* game, SDL_Window* window, SDL_GLContext context);
-    void OnFrame();
+    void OnFrame(float delta_time);
     void EndFrame();
     void PostFrame();
     void Exit();
-    void PollEvents(SDL_Event& e, float delta_time);
+    void PollEvents(SDL_Event& e);
 private:
     void UpdateUI();
     void HandleMouseWheel(float w, float mouse_x, float mouse_y); 

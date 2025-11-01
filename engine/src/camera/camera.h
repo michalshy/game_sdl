@@ -40,6 +40,7 @@ public:
     void SetViewportSize(float width, float height);
 
     glm::mat4 GetViewMatrix();
+    glm::mat4 GetViewProjectionMatrix();
 
 private:
     void RecalculateViewProjectionMatrix();
