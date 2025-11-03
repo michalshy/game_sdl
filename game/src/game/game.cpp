@@ -37,12 +37,10 @@ void Game::Draw()
 {
     Renderer::SetProjectionMatrix(m_Camera->GetViewProjectionMatrix());
 
-    Renderer::Bind();
     for(auto [ent, sprite, transform] : m_Scene->View<CoSprite, CoTransform>().each())
     {
         Renderer::DrawQuad(transform.transform, sprite.color);
     }
-    Renderer::Unbind();
 }
 
 void Game::PollEvents(SDL_Event& /*e*/)
