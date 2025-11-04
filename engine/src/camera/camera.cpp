@@ -1,7 +1,8 @@
 #include "camera.h"
 
 constexpr float SPEED = 100.0f;
-
+constexpr float MIN_ZOOM = 0.1f;
+constexpr float MAX_ZOOM = 10.0f;
 Camera::Camera(float width, float height)
     : m_Zoom(1.0f), m_MovementSpeed(SPEED),
       m_ViewportWidth(width), m_ViewportHeight(height)
@@ -71,7 +72,7 @@ void Camera::ProcessMouseScroll(float yoffset, float mouse_x, float mouse_y)
     glm::vec3 before = ScreenToWorld(mouse_x, mouse_y);
 
     m_Zoom -= yoffset * 0.1f;
-    m_Zoom = glm::clamp(m_Zoom, 0.1f, 2.0f);
+    m_Zoom = glm::clamp(m_Zoom, MIN_ZOOM, MAX_ZOOM);
 
     // After changing zoom we must recompute the view-projection matrix
     // so ScreenToWorld() uses the correct inverse.

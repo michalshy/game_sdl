@@ -29,3 +29,4 @@ struct CoCollider
     ColliderType type;
     int size;
 };
+

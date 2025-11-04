@@ -124,7 +124,10 @@ void Editor::UpdateUI()
 
     if(ImGui::CollapsingHeader("Map Visualizer"))
     {
-
+        if(ImGui::Button("Run cycle"))
+        {
+            m_Game->m_Map->RunCycle();
+        }
     }
 
     if(ImGui::CollapsingHeader("Entites tweaker"))
