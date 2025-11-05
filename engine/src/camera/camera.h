@@ -1,5 +1,6 @@
 #pragma once
 
+#include <glm/fwd.hpp>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -38,6 +39,8 @@ public:
     
     // Update the projection matrix (for window resize)
     void SetViewportSize(float width, float height);
+
+    void SetPosition(glm::vec3 position);
 
     glm::mat4 GetViewMatrix();
     glm::mat4 GetViewProjectionMatrix();

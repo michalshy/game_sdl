@@ -13,7 +13,7 @@ public:
     Entity CreateEntity();
      
     template<typename... ComponentTypes>
-    auto View() const
+    auto View()
     {
         return m_Registry.view<ComponentTypes...>();
     }

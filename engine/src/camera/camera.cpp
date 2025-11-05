@@ -31,6 +31,13 @@ void Camera::SetViewportSize(float width, float height)
     m_ViewProjectionMatrix = m_ProjectionMatrix * m_ViewMatrix;
 }
 
+void Camera::SetPosition(glm::vec3 position)
+{
+    m_Position = position;
+    m_Position.x -= m_ViewportWidth/2;
+    m_Position.y -= m_ViewportHeight/2;
+}
+
 void Camera::RecalculateViewProjectionMatrix()
 {
     // View transform: translate by position, then scale by zoom

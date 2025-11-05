@@ -11,8 +11,9 @@ class Editor
 
     struct CameraOptions
     {
-        bool free_cam = true; // todo: set this as some project parameters
+        bool free_cam = false; // todo: set this as some project parameters
     } m_CamOpt;
+
 
 public:
     bool Init(Game* game, SDL_Window* window, SDL_GLContext context);

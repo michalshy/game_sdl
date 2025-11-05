@@ -3,9 +3,7 @@
 // Level class of Lightbringer Game
 // Simple grid defined by cellular automata algorithm
 #include "scene/scene.h"
-#include <cstdint>
 #include <random>
-#include <utility>
 #include <vector>
 #include "game/game_components.h"
 class Map
@@ -14,7 +12,6 @@ class Map
     // it might be used as different types of obstacles
     int seed;
     std::vector<std::vector<TileType>> map_grid;
-    std::vector<std::pair<Entity, std::pair<int, int>>> positions;
     Scene* m_Scene;
     std::mt19937 rng;
 public:

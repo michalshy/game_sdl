@@ -6,3 +6,9 @@ enum class TileType
     OBSTACLE,
     SPECIAL,
 };
+
+struct CoMapTile
+{
+    int x;
+    int y;
+};

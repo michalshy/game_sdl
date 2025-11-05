@@ -14,10 +14,11 @@ class Game
 
     std::unique_ptr<Scene> m_Scene = nullptr;
     std::unique_ptr<Map> m_Map = nullptr; // math representation of level
-    std::unique_ptr<Camera> m_Camera = nullptr;
+    std::shared_ptr<Camera> m_Camera = nullptr;
     std::unique_ptr<Player> m_Player = nullptr;
 
     float m_DeltaTime;
+    float m_GlobalTime;
 public:
     Game();
     bool Init();

@@ -112,6 +112,12 @@ void Editor::UpdateUI()
     ShowMatrix(m_Game->m_Camera->GetViewMatrix());
 
     ImGui::Separator();
+    ImGui::Text("Timer");
+    ImGui::Text("Delta:");
+    ImGui::Text("%f", m_Game->m_DeltaTime);
+    ImGui::Text("Global:");
+    ImGui::Text("%f", m_Game->m_GlobalTime);
+    ImGui::Separator();
 
 
     if(ImGui::CollapsingHeader("Camera Options"))
@@ -130,11 +136,6 @@ void Editor::UpdateUI()
         }
     }
 
-    if(ImGui::CollapsingHeader("Entites tweaker"))
-    {
-
-    }
-    
     ImGui::End();
 }
 

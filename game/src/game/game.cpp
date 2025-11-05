@@ -11,7 +11,7 @@ Game::Game()
 {
     m_Scene = std::make_unique<Scene>();
     m_Map = std::make_unique<Map>();
-    m_Camera = std::make_unique<Camera>(1280.0f, 720.0f);
+    m_Camera = std::make_shared<Camera>(1280.0f, 720.0f);
     m_Player = std::make_unique<Player>(m_Scene->CreateEntity());
 }
 
@@ -23,14 +23,18 @@ bool Game::Init()
     if(!m_Map || !m_Map->Init(m_Scene.get()))
         return false;
 
+    if(!m_Player->Init(m_Camera))
+        return false;
+
     return true;
 }
 
 void Game::Update(float delta_time)
 {
     m_DeltaTime = delta_time;
+    m_GlobalTime += m_DeltaTime;
 
-    m_Player->HandleInput(m_DeltaTime);
+    m_Player->Update(m_DeltaTime, m_Scene.get());
 }
 
 void Game::Draw()

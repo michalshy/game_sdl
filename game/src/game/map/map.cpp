@@ -122,9 +122,9 @@ bool Map::Survival(int y, int x)
 void Map::DefineEntites(Scene* scene)
 {
     glm::vec3 start_position = {0.0f, 0.0f, 0.0f};
-    for(int i = 0; i < map_grid.size(); i++)
+    for(int i = 0; i < (int)map_grid.size(); i++)
     {
-        for(int j = 0; j < map_grid[i].size(); j++)
+        for(int j = 0; j < (int)map_grid[i].size(); j++)
         {
             Entity quad = scene->CreateEntity();
             glm::vec3 scale = {TILE_SIZE, TILE_SIZE, 1.0f};
@@ -133,9 +133,15 @@ void Map::DefineEntites(Scene* scene)
             model = glm::scale(model, scale);
             quad.AddComponent<CoTransform>(model);
             quad.AddComponent<CoSprite>(map_grid[i][j] == TileType::OBSTACLE ? glm::vec4{0.0f, 0.0f, 0.0f, 1.0f} : glm::vec4{1.0f, 1.0f, 1.0f, 1.0f});
-
-            positions.push_back(std::pair<Entity,std::pair<int,int>>(quad, std::pair<int,int>(i,j)));
-
+            quad.AddComponent<CoMapTile>(i,j);
+            if(map_grid[i][j] == TileType::OBSTACLE)
+            {
+                quad.AddComponent<CoCollider>(true, ColliderType::BOX, TILE_SIZE);
+            }
+            else
+            {
+                quad.AddComponent<CoCollider>(false, ColliderType::BOX, TILE_SIZE);
+            }
             start_position += glm::vec3(TILE_SIZE, 0, 0);
         }
         start_position += glm::vec3(-start_position.x, TILE_SIZE, 0);
@@ -146,9 +152,18 @@ void Map::RunCycle()
 {
     Cycle();
 
-    for(auto& [entity, pos] : positions)
+    auto view = m_Scene->View<CoSprite, CoMapTile, CoCollider>();
+
+    for (auto [entity, sprite, tile_cords, collider] : view.each())
     {
-        entity.GetComponent<CoSprite>().color = map_grid[pos.first][pos.second] == TileType::OBSTACLE ? glm::vec4{0.0f, 0.0f, 0.0f, 1.0f} : glm::vec4{1.0f, 1.0f, 1.0f, 1.0f};
+        sprite.color = map_grid[tile_cords.x][tile_cords.y] == TileType::OBSTACLE
+            ? glm::vec4{0,0,0,1}
+            : glm::vec4{1,1,1,1};
+
+        if(map_grid[tile_cords.x][tile_cords.y] == TileType::OBSTACLE)
+            collider.on = true;
+        else
+            collider.on = false;
     }
 }
 
