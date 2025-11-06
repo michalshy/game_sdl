@@ -12,6 +12,7 @@
 #include <memory>
 
 constexpr glm::ivec2 PLAYER_SIZE{6,12};
+constexpr float COLLISION_MARGIN = 0.5f;
 
 Player::Player(Entity&& entity) : m_PlayerEntity(entity) 
 {
@@ -39,13 +40,13 @@ void Player::HandleInput(float delta_time)
         return;
     
     const Uint8* state = SDL_GetKeyboardState(NULL);
-    if (state[SDL_SCANCODE_W])
+    if (state[SDL_SCANCODE_W] && !m_State.block_input_up.triggered)
         ProcessKeyboard(PlayerMovement::UP, delta_time);
-    if (state[SDL_SCANCODE_S])
+    if (state[SDL_SCANCODE_S] && !m_State.block_input_down.triggered)
         ProcessKeyboard(PlayerMovement::DOWN, delta_time);
-    if (state[SDL_SCANCODE_A])
+    if (state[SDL_SCANCODE_A] && !m_State.block_input_left.triggered)
         ProcessKeyboard(PlayerMovement::LEFT, delta_time);
-    if (state[SDL_SCANCODE_D])
+    if (state[SDL_SCANCODE_D] && !m_State.block_input_right.triggered)
         ProcessKeyboard(PlayerMovement::RIGHT, delta_time);
 
     m_State.last_move = m_PlayerEntity.GetComponent<CoTransform>().transform[3];
@@ -70,6 +71,7 @@ void Player::Update(float delta_time, Scene* scene)
 
     glm::vec3 playerPos = glm::vec3(playerTransform.transform[3]);
 
+    ClearBlocks();
     auto view = scene->View<CoTransform, CoCollider>();
     for (auto [entity, transform, collider] : view.each())
     {
@@ -81,31 +83,62 @@ void Player::Update(float delta_time, Scene* scene)
             continue;
 
         glm::vec3 otherPos = glm::vec3(transform.transform[3]);
-        if(CheckCollision(playerPos, PLAYER_SIZE, otherPos, glm::ivec2{ collider.size, collider.size }))
-        {
-            // Collision response - push player back
-            glm::vec3 player_pos = playerTransform.transform[3];
-            float velocity = m_State.movement_speed * delta_time;
-            playerTransform.Translate(glm::vec3{ -(player_pos.x - m_State.last_move.x) > 0 ? -0.3f : 0.3f  * velocity, (player_pos.y - m_State.last_move.y) > 0 ? -0.3f : 0.3f  * velocity, 0.0f });
-            m_State.block_input = true;
-            LOG_DEBUG("Colliding!");
-        }
+        CheckCollision(playerPos, PLAYER_SIZE, otherPos, glm::ivec2{ collider.size, collider.size });
     }
-    if(!m_State.block_input)
-        HandleInput(delta_time);
-    else
-        m_State.block_input = false;
+    HandleInput(delta_time);
 }
 
-bool Player::CheckCollision(glm::vec3 playerPos, glm::ivec2 playerSize, glm::vec3 otherPos, glm::ivec2 otherSize)
+void Player::CheckCollision(
+    glm::vec3 playerPos, glm::ivec2 playerSize,
+    glm::vec3 otherPos, glm::ivec2 otherSize)
 {
-    bool collisionX = playerPos.x < otherPos.x + otherSize.x &&
-                      playerPos.x + playerSize.x > otherPos.x;
+    // AABB overlap test
+    bool overlapX = playerPos.x < otherPos.x + otherSize.x &&
+                    playerPos.x + playerSize.x > otherPos.x;
 
-    bool collisionY = playerPos.y < otherPos.y + otherSize.y &&
-                      playerPos.y + playerSize.y > otherPos.y;
+    bool overlapY = playerPos.y < otherPos.y + otherSize.y &&
+                    playerPos.y + playerSize.y > otherPos.y;
 
-    return collisionX && collisionY;
+    if (!(overlapX && overlapY))
+        return;
+
+    // Penetration values (amount the boxes overlap)
+    float penLeft   = (playerPos.x + playerSize.x) - otherPos.x;
+    float penRight  = (otherPos.x + otherSize.x) - playerPos.x;
+    float penBottom = (playerPos.y + playerSize.y) - otherPos.y;
+    float penTop    = (otherPos.y + otherSize.y) - playerPos.y;
+
+    // Choose smallest axis overlap → collision direction
+    float minPen = std::min(std::min(penLeft, penRight),
+                            std::min(penBottom, penTop));
+
+    // Horizontal collision — allow vertical sliding
+    if (minPen == penLeft  && penLeft  > COLLISION_MARGIN)
+    {
+        m_State.block_input_right.triggered = true;
+    }
+    else if (minPen == penRight && penRight > COLLISION_MARGIN)
+    {
+        m_State.block_input_left.triggered = true;
+    }
+
+    // Vertical collision — allow horizontal sliding
+    if (minPen == penBottom && penBottom > COLLISION_MARGIN)
+    {
+        m_State.block_input_up.triggered = true;
+    }
+    else if (minPen == penTop && penTop > COLLISION_MARGIN)
+    {
+        m_State.block_input_down.triggered = true;
+    }
+}
+
+void Player::ClearBlocks()
+{
+    m_State.block_input_left.clear();
+    m_State.block_input_right.clear();
+    m_State.block_input_down.clear();
+    m_State.block_input_up.clear();
 }
 
 

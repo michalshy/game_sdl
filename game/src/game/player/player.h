@@ -5,6 +5,18 @@
 #include "scene/entity.h"
 #include <memory>
 
+struct BlockFlag
+{
+    bool skip = false;
+    bool triggered = false;
+
+    void clear()
+    {
+        skip = false;
+        triggered = false;
+    }
+};
+
 enum class PlayerMovement {
 	UP,
 	DOWN,
@@ -29,9 +41,13 @@ public:
         float movement_speed = 10.0f;
         glm::vec3 last_move;
         bool ignore_movement = false;
-        bool block_input = false;
+        BlockFlag block_input_left;
+        BlockFlag block_input_right;
+        BlockFlag block_input_up;
+        BlockFlag block_input_down;
     } m_State;
     
     void ProcessKeyboard(PlayerMovement dir, float delta_time);
-    bool CheckCollision(glm::vec3 playerPos, glm::ivec2 playerSize, glm::vec3 otherPos, glm::ivec2 otherSize);
+    void CheckCollision(glm::vec3 playerPos, glm::ivec2 playerSize, glm::vec3 otherPos, glm::ivec2 otherSize);
+    void ClearBlocks();
 };
