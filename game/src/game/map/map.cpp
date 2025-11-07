@@ -136,11 +136,7 @@ void Map::DefineEntites(Scene* scene)
             quad.AddComponent<CoMapTile>(i,j);
             if(map_grid[i][j] == TileType::OBSTACLE)
             {
-                quad.AddComponent<CoCollider>(true, ColliderType::BOX, TILE_SIZE);
-            }
-            else
-            {
-                quad.AddComponent<CoCollider>(false, ColliderType::BOX, TILE_SIZE);
+                quad.AddComponent<CoCollider>(glm::ivec2(TILE_SIZE + 1, TILE_SIZE + 1), true);
             }
             start_position += glm::vec3(TILE_SIZE, 0, 0);
         }
@@ -159,11 +155,6 @@ void Map::RunCycle()
         sprite.color = map_grid[tile_cords.x][tile_cords.y] == TileType::OBSTACLE
             ? glm::vec4{0,0,0,1}
             : glm::vec4{1,1,1,1};
-
-        if(map_grid[tile_cords.x][tile_cords.y] == TileType::OBSTACLE)
-            collider.on = true;
-        else
-            collider.on = false;
     }
 }
 

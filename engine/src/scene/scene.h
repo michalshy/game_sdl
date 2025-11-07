@@ -18,6 +18,12 @@ public:
         return m_Registry.view<ComponentTypes...>();
     }
 
+    template<typename... ComponentTypes>
+    auto Group()
+    {
+        return m_Registry.group<ComponentTypes...>();
+    }
+
 private:
     entt::registry m_Registry;
 

@@ -22,7 +22,7 @@ Player::Player(Entity&& entity) : m_PlayerEntity(entity)
     model = glm::scale(model, glm::vec3(PLAYER_SIZE.x, PLAYER_SIZE.y, 1.0f));
     m_PlayerEntity.AddComponent<CoTransform>(model);
     m_PlayerEntity.AddComponent<CoSprite>(glm::vec4{0.0f, 0.0f, 1.0f, 1.0f});
-    m_PlayerEntity.AddComponent<CoCollider>(true, ColliderType::BOX, PLAYER_SIZE.x);
+    m_PlayerEntity.AddComponent<CoCollider>(glm::ivec2(PLAYER_SIZE.x, PLAYER_SIZE.y), false);
 }
 
 bool Player::Init(std::shared_ptr<Camera> camera)
@@ -40,13 +40,13 @@ void Player::HandleInput(float delta_time)
         return;
     
     const Uint8* state = SDL_GetKeyboardState(NULL);
-    if (state[SDL_SCANCODE_W] && !m_State.block_input_up.triggered)
+    if (state[SDL_SCANCODE_W])
         ProcessKeyboard(PlayerMovement::UP, delta_time);
-    if (state[SDL_SCANCODE_S] && !m_State.block_input_down.triggered)
+    if (state[SDL_SCANCODE_S])
         ProcessKeyboard(PlayerMovement::DOWN, delta_time);
-    if (state[SDL_SCANCODE_A] && !m_State.block_input_left.triggered)
+    if (state[SDL_SCANCODE_A])
         ProcessKeyboard(PlayerMovement::LEFT, delta_time);
-    if (state[SDL_SCANCODE_D] && !m_State.block_input_right.triggered)
+    if (state[SDL_SCANCODE_D])
         ProcessKeyboard(PlayerMovement::RIGHT, delta_time);
 
     m_State.last_move = m_PlayerEntity.GetComponent<CoTransform>().transform[3];
@@ -67,80 +67,8 @@ void Player::ToggleInput(bool state)
 
 void Player::Update(float delta_time, Scene* scene)
 {
-    auto& playerTransform = m_PlayerEntity.GetComponent<CoTransform>();
-
-    glm::vec3 playerPos = glm::vec3(playerTransform.transform[3]);
-
-    ClearBlocks();
-    auto view = scene->View<CoTransform, CoCollider>();
-    for (auto [entity, transform, collider] : view.each())
-    {
-        if(!collider.on)
-            continue;
-        
-        // Don't collide with self
-        if(transform.transform == m_PlayerEntity.GetComponent<CoTransform>().transform)
-            continue;
-
-        glm::vec3 otherPos = glm::vec3(transform.transform[3]);
-        CheckCollision(playerPos, PLAYER_SIZE, otherPos, glm::ivec2{ collider.size, collider.size });
-    }
     HandleInput(delta_time);
 }
-
-void Player::CheckCollision(
-    glm::vec3 playerPos, glm::ivec2 playerSize,
-    glm::vec3 otherPos, glm::ivec2 otherSize)
-{
-    // AABB overlap test
-    bool overlapX = playerPos.x < otherPos.x + otherSize.x &&
-                    playerPos.x + playerSize.x > otherPos.x;
-
-    bool overlapY = playerPos.y < otherPos.y + otherSize.y &&
-                    playerPos.y + playerSize.y > otherPos.y;
-
-    if (!(overlapX && overlapY))
-        return;
-
-    // Penetration values (amount the boxes overlap)
-    float penLeft   = (playerPos.x + playerSize.x) - otherPos.x;
-    float penRight  = (otherPos.x + otherSize.x) - playerPos.x;
-    float penBottom = (playerPos.y + playerSize.y) - otherPos.y;
-    float penTop    = (otherPos.y + otherSize.y) - playerPos.y;
-
-    // Choose smallest axis overlap → collision direction
-    float minPen = std::min(std::min(penLeft, penRight),
-                            std::min(penBottom, penTop));
-
-    // Horizontal collision — allow vertical sliding
-    if (minPen == penLeft  && penLeft  > COLLISION_MARGIN)
-    {
-        m_State.block_input_right.triggered = true;
-    }
-    else if (minPen == penRight && penRight > COLLISION_MARGIN)
-    {
-        m_State.block_input_left.triggered = true;
-    }
-
-    // Vertical collision — allow horizontal sliding
-    if (minPen == penBottom && penBottom > COLLISION_MARGIN)
-    {
-        m_State.block_input_up.triggered = true;
-    }
-    else if (minPen == penTop && penTop > COLLISION_MARGIN)
-    {
-        m_State.block_input_down.triggered = true;
-    }
-}
-
-void Player::ClearBlocks()
-{
-    m_State.block_input_left.clear();
-    m_State.block_input_right.clear();
-    m_State.block_input_down.clear();
-    m_State.block_input_up.clear();
-}
-
 
 void Player::ProcessKeyboard(PlayerMovement dir, float delta_time)
 {

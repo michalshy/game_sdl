@@ -1,5 +1,6 @@
 #include "game.h"
 #include "camera/camera.h"
+#include "collision/collision_manager.h"
 #include "scene/scene.h"
 #include "scene/components.h"
 #include "renderer/renderer.h"
@@ -9,10 +10,11 @@
 
 Game::Game()
 {
-    m_Scene = std::make_unique<Scene>();
+    m_Scene = std::make_shared<Scene>();
     m_Map = std::make_unique<Map>();
     m_Camera = std::make_shared<Camera>(1280.0f, 720.0f);
     m_Player = std::make_unique<Player>(m_Scene->CreateEntity());
+    m_CollisionManager = std::make_unique<CollisionManager>(m_Scene);
 }
 
 bool Game::Init()
@@ -35,6 +37,8 @@ void Game::Update(float delta_time)
     m_GlobalTime += m_DeltaTime;
 
     m_Player->Update(m_DeltaTime, m_Scene.get());
+
+    m_CollisionManager->Update();
 }
 
 void Game::Draw()

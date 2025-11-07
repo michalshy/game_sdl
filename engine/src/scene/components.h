@@ -14,6 +14,10 @@ struct CoTransform
     }
 };
 
+struct CoRigidBody {
+    glm::vec2 velocity;
+};
+
 struct CoSprite
 {
     glm::vec4 color{1.0f, 1.0f, 1.0f, 1.0f};
@@ -24,15 +28,7 @@ struct CoSprite
     }
 };
 
-enum class ColliderType
-{
-    CIRCLE,
-    BOX,
-};
-
-struct CoCollider
-{
-    bool on;
-    ColliderType type;
-    int size;
+struct CoCollider {
+    glm::ivec2 size;
+    bool isStatic = false;
 };
