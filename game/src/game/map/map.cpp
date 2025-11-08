@@ -1,5 +1,6 @@
 #include "map.h"
 #include "game/game_components.h"
+#include "game/player/player.h"
 #include "map_consts.h"
 #include "log.h"
 #include <glm/ext/matrix_transform.hpp>
@@ -12,6 +13,7 @@ constexpr float wall_chance = 0.45f;
 constexpr int iterations = 5;
 constexpr int survival_threshold = 2;
 constexpr int birth_threshold = 3;
+constexpr glm::ivec3 STARTING_POS{0,0,0};
 
 Map::Map()
 {
@@ -36,6 +38,26 @@ bool Map::Init(Scene* scene)
 
     LOG_DEBUG("Initialized Level");
     return true;
+}
+
+glm::vec3 Map::CheckBounds(Player& player)
+{
+    glm::vec3 player_pos = player.GetNexPosition();
+    LOG_DEBUG("Map checking bounds for pos {},{},{}", player.GetPosition().x, player.GetPosition().y, player.GetPosition().z);
+    LOG_DEBUG("Map checking bounds for next pos {},{},{}", player.GetNexPosition().x, player.GetNexPosition().y, player.GetNexPosition().z);
+    int gridX = static_cast<int>(player_pos.x / TILE_SIZE) + 1;
+    int gridY = static_cast<int>(player_pos.y / TILE_SIZE) + 1;
+    LOG_DEBUG("Calculated grid for pos {},{}", static_cast<int>(player.GetPosition().x / TILE_SIZE), static_cast<int>(player.GetPosition().y / TILE_SIZE));
+    LOG_DEBUG("Calculated grid for next pos {},{}", gridX, gridY);
+
+
+    if (map_grid[gridY][gridX] == TileType::OBSTACLE)
+    {
+        LOG_DEBUG("Returning false");
+        return {0.0, 0.0, 0.0}; // blocked
+    }
+
+    return {1.0, 1.0, 1.0};
 }
 
 int Map::GetSeed()
@@ -121,7 +143,7 @@ bool Map::Survival(int y, int x)
 
 void Map::DefineEntites(Scene* scene)
 {
-    glm::vec3 start_position = {0.0f, 0.0f, 0.0f};
+    glm::vec3 start_position = STARTING_POS;
     for(int i = 0; i < (int)map_grid.size(); i++)
     {
         for(int j = 0; j < (int)map_grid[i].size(); j++)
@@ -134,10 +156,6 @@ void Map::DefineEntites(Scene* scene)
             quad.AddComponent<CoTransform>(model);
             quad.AddComponent<CoSprite>(map_grid[i][j] == TileType::OBSTACLE ? glm::vec4{0.0f, 0.0f, 0.0f, 1.0f} : glm::vec4{1.0f, 1.0f, 1.0f, 1.0f});
             quad.AddComponent<CoMapTile>(i,j);
-            if(map_grid[i][j] == TileType::OBSTACLE)
-            {
-                quad.AddComponent<CoCollider>(glm::ivec2(TILE_SIZE + 1, TILE_SIZE + 1), true);
-            }
             start_position += glm::vec3(TILE_SIZE, 0, 0);
         }
         start_position += glm::vec3(-start_position.x, TILE_SIZE, 0);
@@ -148,9 +166,9 @@ void Map::RunCycle()
 {
     Cycle();
 
-    auto view = m_Scene->View<CoSprite, CoMapTile, CoCollider>();
+    auto view = m_Scene->View<CoSprite, CoMapTile>();
 
-    for (auto [entity, sprite, tile_cords, collider] : view.each())
+    for (auto [entity, sprite, tile_cords] : view.each())
     {
         sprite.color = map_grid[tile_cords.x][tile_cords.y] == TileType::OBSTACLE
             ? glm::vec4{0,0,0,1}

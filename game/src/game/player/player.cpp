@@ -12,7 +12,6 @@
 #include <memory>
 
 constexpr glm::ivec2 PLAYER_SIZE{6,12};
-constexpr float COLLISION_MARGIN = 0.5f;
 
 Player::Player(Entity&& entity) : m_PlayerEntity(entity) 
 {
@@ -49,8 +48,6 @@ void Player::HandleInput(float delta_time)
     if (state[SDL_SCANCODE_D])
         ProcessKeyboard(PlayerMovement::RIGHT, delta_time);
 
-    m_State.last_move = m_PlayerEntity.GetComponent<CoTransform>().transform[3];
-
     HandleCamera(delta_time);
 }
 
@@ -65,17 +62,35 @@ void Player::ToggleInput(bool state)
     m_State.ignore_movement = !state;
 }
 
-void Player::Update(float delta_time, Scene* scene)
+void Player::UpdateInternal(float delta_time)
 {
     HandleInput(delta_time);
+    LOG_DEBUG("After handling input pos is {},{},{}", GetPosition().x, GetPosition().y, GetPosition().z);
+}
+
+void Player::UpdateMove(glm::vec3 mask)
+{
+    MultiplyMove(mask);
+    m_PlayerEntity.GetComponent<CoTransform>().Translate(m_State.queued_move);
+    ClearMove();
+}
+
+void Player::MultiplyMove(glm::vec3 mask)
+{
+    m_State.queued_move *= mask;
+}
+
+void Player::ClearMove()
+{
+    m_State.queued_move = glm::vec3(0.f, 0.f, 0.f);
 }
 
 void Player::ProcessKeyboard(PlayerMovement dir, float delta_time)
 {
     float velocity = m_State.movement_speed * delta_time;
 
-    if (dir == PlayerMovement::UP)    m_PlayerEntity.GetComponent<CoTransform>().Translate(glm::vec3{0.0f, velocity, 0.0f});
-    if (dir == PlayerMovement::DOWN)  m_PlayerEntity.GetComponent<CoTransform>().Translate(glm::vec3{0.0f, -velocity, 0.0f});
-    if (dir == PlayerMovement::LEFT)  m_PlayerEntity.GetComponent<CoTransform>().Translate(glm::vec3{-velocity, 0.0f, 0.0f});
-    if (dir == PlayerMovement::RIGHT) m_PlayerEntity.GetComponent<CoTransform>().Translate(glm::vec3{velocity, 0.0f, 0.0f});
+    if (dir == PlayerMovement::UP)    m_State.queued_move += glm::vec3{0.0f, velocity, 0.0f};
+    if (dir == PlayerMovement::DOWN)  m_State.queued_move += glm::vec3{0.0f, -velocity, 0.0f};
+    if (dir == PlayerMovement::LEFT)  m_State.queued_move += glm::vec3{-velocity, 0.0f, 0.0f};
+    if (dir == PlayerMovement::RIGHT) m_State.queued_move += glm::vec3{velocity, 0.0f, 0.0f};
 }

@@ -1,21 +1,13 @@
 #pragma once
 
 #include "camera/camera.h"
+#include "scene/components.h"
 #include "scene/scene.h"
 #include "scene/entity.h"
+#include <glm/fwd.hpp>
 #include <memory>
 
-struct BlockFlag
-{
-    bool skip = false;
-    bool triggered = false;
-
-    void clear()
-    {
-        skip = false;
-        triggered = false;
-    }
-};
+constexpr float NEXT_MOVE_MULT = 4.0f;
 
 enum class PlayerMovement {
 	UP,
@@ -34,13 +26,18 @@ public:
     void HandleInput(float delta_time);
     void HandleCamera(float delta_time);
     void ToggleInput(bool state);
-    void Update(float delta_time, Scene* scene);
-    private:
+    const glm::vec3 GetPosition() { return m_PlayerEntity.GetComponent<CoTransform>().transform[3]; }
+    const glm::vec3 GetNexPosition() { return glm::vec3{m_PlayerEntity.GetComponent<CoTransform>().transform[3]} + NEXT_MOVE_MULT * m_State.queued_move; }
+    void UpdateInternal(float delta_time);
+    void UpdateMove(glm::vec3 mask);
+private:
+    void MultiplyMove(glm::vec3 mult);
+    void ClearMove();
     struct PlayerState
     {
-        float movement_speed = 10.0f;
-        glm::vec3 last_move;
+        float movement_speed = 5.0f;
         bool ignore_movement = false;
+        glm::vec3 queued_move;
     } m_State;
     
     void ProcessKeyboard(PlayerMovement dir, float delta_time);

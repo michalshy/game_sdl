@@ -6,6 +6,7 @@
 #include <random>
 #include <vector>
 #include "game/game_components.h"
+#include "game/player/player.h"
 class Map
 {
     // Leaving int here since 
@@ -17,7 +18,7 @@ class Map
 public:
     Map();
     bool Init(Scene* scene);
-    void Draw();
+    glm::vec3 CheckBounds(Player& player);
     int GetSeed();
     void RunCycle();
 private:
