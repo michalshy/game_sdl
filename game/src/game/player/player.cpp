@@ -62,6 +62,11 @@ void Player::ToggleInput(bool state)
     m_State.ignore_movement = !state;
 }
 
+const glm::ivec2 Player::GetSize() 
+{
+    return PLAYER_SIZE;
+}
+
 void Player::UpdateInternal(float delta_time)
 {
     HandleInput(delta_time);

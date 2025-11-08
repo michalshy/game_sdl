@@ -43,17 +43,13 @@ bool Map::Init(Scene* scene)
 glm::vec3 Map::CheckBounds(Player& player)
 {
     glm::vec3 player_pos = player.GetNexPosition();
-    LOG_DEBUG("Map checking bounds for pos {},{},{}", player.GetPosition().x, player.GetPosition().y, player.GetPosition().z);
-    LOG_DEBUG("Map checking bounds for next pos {},{},{}", player.GetNexPosition().x, player.GetNexPosition().y, player.GetNexPosition().z);
-    int gridX = static_cast<int>(player_pos.x / TILE_SIZE) + 1;
-    int gridY = static_cast<int>(player_pos.y / TILE_SIZE) + 1;
-    LOG_DEBUG("Calculated grid for pos {},{}", static_cast<int>(player.GetPosition().x / TILE_SIZE), static_cast<int>(player.GetPosition().y / TILE_SIZE));
-    LOG_DEBUG("Calculated grid for next pos {},{}", gridX, gridY);
+    glm::ivec2 player_size = player.GetSize();
+    int gridX = static_cast<int>((player_pos.x) / TILE_SIZE);
+    int gridY = static_cast<int>((player_pos.y) / TILE_SIZE);
 
 
     if (map_grid[gridY][gridX] == TileType::OBSTACLE)
     {
-        LOG_DEBUG("Returning false");
         return {0.0, 0.0, 0.0}; // blocked
     }
 
@@ -151,7 +147,7 @@ void Map::DefineEntites(Scene* scene)
             Entity quad = scene->CreateEntity();
             glm::vec3 scale = {TILE_SIZE, TILE_SIZE, 1.0f};
             glm::mat4 model = glm::mat4(1.0f);
-            model = glm::translate(model, start_position);
+            model = glm::translate(model, start_position + glm::vec3(TILE_SIZE / 2.0f, TILE_SIZE / 2.0f, 0.0f));
             model = glm::scale(model, scale);
             quad.AddComponent<CoTransform>(model);
             quad.AddComponent<CoSprite>(map_grid[i][j] == TileType::OBSTACLE ? glm::vec4{0.0f, 0.0f, 0.0f, 1.0f} : glm::vec4{1.0f, 1.0f, 1.0f, 1.0f});
