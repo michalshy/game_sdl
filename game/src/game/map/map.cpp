@@ -42,18 +42,35 @@ bool Map::Init(Scene* scene)
 
 glm::vec3 Map::CheckBounds(Player& player)
 {
-    glm::vec3 player_pos = player.GetNexPosition();
-    glm::ivec2 player_size = player.GetSize();
-    int gridX = static_cast<int>((player_pos.x) / TILE_SIZE);
-    int gridY = static_cast<int>((player_pos.y) / TILE_SIZE);
+    glm::vec3 next = player.GetNexPosition();
+    glm::ivec2 size = player.GetSize();
+    glm::vec3 mask{1.0f, 1.0f, 1.0f};
 
+    // --- X AXIS ---
+    int minX = static_cast<int>((next.x - size.x/2.0) / TILE_SIZE);
+    int maxX = static_cast<int>((next.x + size.x/2.0) / TILE_SIZE);
+    int minY = static_cast<int>((player.GetPosition().y - size.y/2.0) / TILE_SIZE);
+    int maxY = static_cast<int>((player.GetPosition().y + size.y/2.0) / TILE_SIZE);
 
-    if (map_grid[gridY][gridX] == TileType::OBSTACLE)
+    for (int y = minY; y <= maxY; ++y)
     {
-        return {0.0, 0.0, 0.0}; // blocked
+        if (map_grid[y][maxX] == TileType::OBSTACLE) { mask.x = 0.0f; break; }
+        if (map_grid[y][minX] == TileType::OBSTACLE) { mask.x = 0.0f; break; }
     }
 
-    return {1.0, 1.0, 1.0};
+    // --- Y AXIS ---
+    minX = static_cast<int>((player.GetPosition().x - size.x/2.0) / TILE_SIZE);
+    maxX = static_cast<int>((player.GetPosition().x + size.x/2.0) / TILE_SIZE);
+    minY = static_cast<int>((next.y - size.y/2.0) / TILE_SIZE);
+    maxY = static_cast<int>((next.y + size.y/2.0) / TILE_SIZE);
+
+    for (int x = minX; x <= maxX; ++x)
+    {
+        if (map_grid[maxY][x] == TileType::OBSTACLE) { mask.y = 0.0f; break; }
+        if (map_grid[minY][x] == TileType::OBSTACLE) { mask.y = 0.0f; break; }
+    }
+
+    return mask;
 }
 
 int Map::GetSeed()
