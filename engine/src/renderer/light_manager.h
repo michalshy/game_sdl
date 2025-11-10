@@ -19,10 +19,6 @@ public:
     static void Shutdown();
 
     static void BeginFrame(Scene* scene);
-    static void EndFrame();
-
-    static void AddLight(const glm::vec2& position, const glm::vec3& color, float radius, float intensity = 1.0f);
-    static void ClearLights();
 
     // Accessor for Renderer
     static const std::vector<Light>& GetLights();

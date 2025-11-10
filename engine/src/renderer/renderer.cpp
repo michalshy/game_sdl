@@ -94,11 +94,16 @@ void Renderer::BeginFrame()
     s_Data->QuadShader.SetMat4("u_ViewProjection", s_Data->ProjectionMatrix);
 
     auto& lights = LightManager::GetLights();
-    if (!lights.empty()) {
-    const Light& mainLight = lights[0]; // single light for now
-    s_Data->QuadShader.SetVec2("u_LightPos", mainLight.Position);
-    s_Data->QuadShader.SetVec3("u_LightColor", mainLight.Color * mainLight.Intensity);
-    s_Data->QuadShader.SetFloat("u_LightRadius", mainLight.Radius);
+    int numLights = glm::min((int)lights.size(), 16); // MAX_LIGHTS
+
+    s_Data->QuadShader.SetInt("u_NumLights", numLights);
+
+    for (int i = 0; i < numLights; i++)
+    {
+        const Light& light = lights[i];
+        s_Data->QuadShader.SetVec2("u_LightPos[" + std::to_string(i) + "]", light.Position);
+        s_Data->QuadShader.SetVec3("u_LightColor[" + std::to_string(i) + "]", light.Color * light.Intensity);
+        s_Data->QuadShader.SetFloat("u_LightRadius[" + std::to_string(i) + "]", light.Radius);
     }
 
     s_Data->InstanceBuffer.clear();

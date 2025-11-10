@@ -119,7 +119,6 @@ void Editor::UpdateUI()
     ImGui::Text("%f", m_Game->m_GlobalTime);
     ImGui::Separator();
 
-
     if(ImGui::CollapsingHeader("Camera Options"))
     {
         if(ImGui::Checkbox("Enable free camera", &m_CamOpt.free_cam))
@@ -134,6 +133,11 @@ void Editor::UpdateUI()
         {
             m_Game->m_Map->RunCycle();
         }
+    }
+
+    if(ImGui::CollapsingHeader("Lights"))
+    {
+        ImGui::Checkbox("Respect light map", &m_Game->m_Debug.respect_lightmap);
     }
 
     ImGui::End();

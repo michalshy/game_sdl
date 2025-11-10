@@ -37,10 +37,10 @@ public:
     
     const glm::mat4& GetViewProjectionMatrix() const { return m_ViewProjectionMatrix; }
     
-    // Update the projection matrix (for window resize)
     void SetViewportSize(float width, float height);
 
     void SetPosition(glm::vec3 position);
+    const glm::vec3& GetPosition() const { return m_Position; }
 
     glm::mat4 GetViewMatrix();
     glm::mat4 GetViewProjectionMatrix();

@@ -1,14 +1,17 @@
 #include "map.h"
 #include "game/game_components.h"
+#include "game/light/light.h"
 #include "game/player/player.h"
 #include "map_consts.h"
 #include "log.h"
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/ext/vector_float2.hpp>
+#include <memory>
 #include <random>
 #include "renderer/light_manager.h"
 #include "scene/components.h"
 #include "scene/entity.h"
+#include "scene/scene.h"
 
 constexpr float WALL_CHANCE = 0.45f;
 constexpr int ITERATIONS = 5;
@@ -16,8 +19,8 @@ constexpr int SURVIVAL_THRESHOLD = 2;
 constexpr int BIRTH_THRESHOLD = 3;
 constexpr glm::ivec3 STARTING_POS{0,0,0};
 
-constexpr float ALLY_CHANCE = 0.02f;
-constexpr float RESOURCE_CHANCE = 0.05f;
+constexpr float ALLY_CHANCE = 0.005f;
+constexpr float RESOURCE_CHANCE = 0.009f;
 
 Map::Map()
 {
@@ -32,13 +35,13 @@ Map::Map()
     light_map.assign(map_grid.size(), std::vector<float>(map_grid[0].size(), 0.0f)); 
 }
 
-bool Map::Init(Scene* scene)
+bool Map::Init(std::shared_ptr<Scene> scene)
 {
     if(!scene)
         return false;
 
     m_Scene = scene;
-    if(!InitMap(scene))
+    if(!InitMap())
         return false;
 
     LOG_DEBUG("Initialized Level");
@@ -83,7 +86,7 @@ int Map::GetSeed()
     return seed;
 }
 
-bool Map::InitMap(Scene* scene)
+bool Map::InitMap()
 {
     seed = std::random_device{}();
     //seed = 4164015880;
@@ -92,8 +95,16 @@ bool Map::InitMap(Scene* scene)
     
     Cycle();
 
-    DefineEntites(scene);
+    InitLight();
+
+    DefineEntites();
     return true;
+}
+
+void Map::InitLight()
+{
+    m_MapHeart = std::make_unique<HeartLight>(m_Scene);
+    m_MapHeart->Init(MAP_CENTER_WORLD);
 }
 
 bool Map::Birth(int y, int x)
@@ -126,14 +137,14 @@ bool Map::Survival(int y, int x)
     return neighbours >= SURVIVAL_THRESHOLD;
 }
 
-void Map::DefineEntites(Scene* scene)
+void Map::DefineEntites()
 {
     glm::vec3 start_position = STARTING_POS;
     for(int i = 0; i < (int)map_grid.size(); i++)
     {
         for(int j = 0; j < (int)map_grid[i].size(); j++)
         {
-            Entity quad = scene->CreateEntity();
+            Entity quad = m_Scene->CreateEntity();
             glm::vec3 scale = {TILE_SIZE, TILE_SIZE, 1.0f};
             glm::mat4 model = glm::mat4(1.0f);
             model = glm::translate(model, start_position + glm::vec3(TILE_SIZE / 2.0f, TILE_SIZE / 2.0f, 0.0f));
@@ -345,7 +356,7 @@ void Map::ComputeResources()
 
 void Map::ComputeLight()
 {
-    map_grid[GRID_DIMENSIONS.y/2][GRID_DIMENSIONS.x/2] = TileType::LIGHT;
+    map_grid[MAP_CENTER.x][MAP_CENTER.y] = TileType::LIGHT;
 }
 
 glm::vec4 Map::ComputeColors(int i, int j)

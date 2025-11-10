@@ -2,7 +2,9 @@
 
 // Level class of Lightbringer Game
 // Simple grid defined by cellular automata algorithm
+#include "game/light/light.h"
 #include "scene/scene.h"
+#include <memory>
 #include <random>
 #include <vector>
 #include "game/game_components.h"
@@ -14,11 +16,13 @@ class Map
     int seed;
     std::vector<std::vector<TileType>> map_grid;
     std::vector<std::vector<float>> light_map;
-    Scene* m_Scene;
+    std::shared_ptr<Scene> m_Scene;
     std::mt19937 rng;
+
+    std::unique_ptr<HeartLight> m_MapHeart; // This is key element of the game, the light which shall be protected :)
 public:
     Map();
-    bool Init(Scene* scene);
+    bool Init(std::shared_ptr<Scene> scene);
     glm::vec3 CheckBounds(Player& player);
     int GetSeed();
     void RunCycle();
@@ -28,11 +32,12 @@ private:
     void UpdateLightMaps();
     void UpdateLightMap(const glm::vec2& light_pos_world, float radius, float intensity = 1.0f); 
     void Cycle();
-    bool InitMap(Scene* scene);
+    bool InitMap();
+    void InitLight();
     bool Birth(int y, int x);
     bool Survival(int y, int x);
     int CountWallNeighbors(int y, int x);
-    void DefineEntites(Scene* scene);
+    void DefineEntites();
     void ComputeEnemies();
     void ComputeAllies();
     void ComputeResources();

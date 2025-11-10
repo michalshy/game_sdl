@@ -22,7 +22,7 @@ bool Game::Init()
     if(!m_Scene)
         return false;
 
-    if(!m_Map || !m_Map->Init(m_Scene.get()))
+    if(!m_Map || !m_Map->Init(m_Scene))
         return false;
 
     if(!m_Player->Init(m_Camera))
@@ -49,7 +49,10 @@ void Game::Draw()
 
     for(auto [ent, sprite, transform] : m_Scene->View<CoSprite, CoTransform>().each())
     {
-        glm::vec4 final_color = sprite.color * m_Map->GetLightMap()[transform.transform[3].y/TILE_SIZE][transform.transform[3].x/TILE_SIZE];
+        glm::vec4 final_color = sprite.color;
+        if(m_Debug.respect_lightmap)
+            final_color *= m_Map->GetLightMap()[transform.transform[3].y/TILE_SIZE][transform.transform[3].x/TILE_SIZE];
+        
         Renderer::DrawQuad(transform.transform, final_color );
     }
 }

@@ -1,6 +1,6 @@
 #include "camera.h"
 
-constexpr float SPEED = 200.0f;
+constexpr float SPEED = 400.0f;
 constexpr float MIN_ZOOM = 0.1f;
 constexpr float MAX_ZOOM = 10.0f;
 Camera::Camera(float width, float height)
@@ -36,6 +36,7 @@ void Camera::SetPosition(glm::vec3 position)
     m_Position = position;
     m_Position.x -= m_ViewportWidth/2;
     m_Position.y -= m_ViewportHeight/2;
+    m_Zoom = 1.0f; // Reset to base zoom
 }
 
 void Camera::RecalculateViewProjectionMatrix()

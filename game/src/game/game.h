@@ -19,6 +19,11 @@ class Game
 
     float m_DeltaTime;
     float m_GlobalTime;
+
+    struct DebugOptions
+    {
+        bool respect_lightmap = true;
+    } m_Debug;
 public:
     Game();
     bool Init();

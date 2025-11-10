@@ -22,7 +22,7 @@ Player::Player(Entity&& entity) : m_PlayerEntity(entity)
     m_PlayerEntity.AddComponent<CoTransform>(model);
     m_PlayerEntity.AddComponent<CoSprite>(glm::vec4{0.0f, 0.0f, 1.0f, 1.0f});
     m_PlayerEntity.AddComponent<CoCollider>(glm::ivec2(PLAYER_SIZE.x, PLAYER_SIZE.y), false);
-    m_PlayerEntity.AddComponent<CoLight>(CoLight{glm::vec3{1.0f, 1.0f, 0.6f}, 400.0f, 1.f, true});
+    m_PlayerEntity.AddComponent<CoLight>(CoLight{glm::vec3{1.0f, 1.0f, 0.6f}, 350.0f, 0.7f, true});
 }
 
 bool Player::Init(std::shared_ptr<Camera> camera)
