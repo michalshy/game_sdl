@@ -9,11 +9,14 @@
 #include "scene/components.h"
 #include "scene/entity.h"
 
-constexpr float wall_chance = 0.45f;
-constexpr int iterations = 5;
-constexpr int survival_threshold = 2;
-constexpr int birth_threshold = 3;
+constexpr float WALL_CHANCE = 0.45f;
+constexpr int ITERATIONS = 5;
+constexpr int SURVIVAL_THRESHOLD = 2;
+constexpr int BIRTH_THRESHOLD = 3;
 constexpr glm::ivec3 STARTING_POS{0,0,0};
+
+constexpr float ALLY_CHANCE = 0.02f;
+constexpr float RESOURCE_CHANCE = 0.05f;
 
 Map::Map()
 {
@@ -84,41 +87,8 @@ bool Map::InitMap(Scene* scene)
     //seed = 4164015880;
     LOG_DEBUG("Creating level for seed: {}", seed);
     rng = std::mt19937(seed);
-    std::uniform_real_distribution<> dist(0.0f,1.0f);
-    for(int y = 1; y < GRID_DIMENSIONS.y - 1; y++)
-    {
-        for(int x = 1; x < GRID_DIMENSIONS.x - 1; x++)
-        {
-            map_grid[y][x] = dist(rng) > wall_chance ? TileType::NONOBSTACLE : TileType::OBSTACLE;
-        }
-    } 
-
-    for(int i = 0; i < iterations; i++)
-    {
-        for(int y = 1; y < GRID_DIMENSIONS.y - 1; y++)
-        {
-            for(int x = 1; x < GRID_DIMENSIONS.x - 1; x++)
-            {
-                if(!Survival(y,x))
-                {
-                    map_grid[y][x] = TileType::NONOBSTACLE;
-                }
-                else if(Birth(y, x))
-                {
-                    map_grid[y][x] = TileType::OBSTACLE;
-                }
-            }
-        } 
-    }
-
-    // Now we want to get to the middle of the map and declare empty square for the castle
-    for(int i = 0; i < CASTLE_SIZE; i++)
-    {
-        for(int j = 0; j < CASTLE_SIZE; j++)
-        {
-            map_grid[GRID_DIMENSIONS.y/2 - CASTLE_SIZE/2 + i][GRID_DIMENSIONS.x/2 - CASTLE_SIZE/2 + j] = TileType::SPECIAL; // means special
-        }   
-    }
+    
+    Cycle();
 
     DefineEntites(scene);
     return true;
@@ -136,7 +106,7 @@ bool Map::Birth(int y, int x)
     if(map_grid[y+1][x] == TileType::OBSTACLE)
         ++neighbours;
 
-    return neighbours >= birth_threshold;
+    return neighbours >= BIRTH_THRESHOLD;
 }
 
 bool Map::Survival(int y, int x)
@@ -151,7 +121,7 @@ bool Map::Survival(int y, int x)
     if(map_grid[y+1][x] == TileType::OBSTACLE)
         ++neighbours;
 
-    return neighbours >= survival_threshold;
+    return neighbours >= SURVIVAL_THRESHOLD;
 }
 
 void Map::DefineEntites(Scene* scene)
@@ -167,7 +137,10 @@ void Map::DefineEntites(Scene* scene)
             model = glm::translate(model, start_position + glm::vec3(TILE_SIZE / 2.0f, TILE_SIZE / 2.0f, 0.0f));
             model = glm::scale(model, scale);
             quad.AddComponent<CoTransform>(model);
-            quad.AddComponent<CoSprite>(map_grid[i][j] == TileType::OBSTACLE ? glm::vec4{0.0f, 0.0f, 0.0f, 1.0f} : glm::vec4{1.0f, 1.0f, 1.0f, 1.0f});
+            
+            glm::vec4 color = ComputeColors(i, j);
+                
+            quad.AddComponent<CoSprite>(color);
             quad.AddComponent<CoMapTile>(i,j);
             start_position += glm::vec3(TILE_SIZE, 0, 0);
         }
@@ -183,9 +156,8 @@ void Map::RunCycle()
 
     for (auto [entity, sprite, tile_cords] : view.each())
     {
-        sprite.color = map_grid[tile_cords.x][tile_cords.y] == TileType::OBSTACLE
-            ? glm::vec4{0,0,0,1}
-            : glm::vec4{1,1,1,1};
+        glm::vec4 color = ComputeColors(tile_cords.x, tile_cords.y);
+        sprite.color = color;
     }
 }
 
@@ -196,7 +168,7 @@ void Map::Cycle()
     {
         for(int x = 1; x < GRID_DIMENSIONS.x - 1; x++)
         {
-            map_grid[y][x] = dist(rng) > wall_chance ? TileType::NONOBSTACLE : TileType::OBSTACLE;
+            map_grid[y][x] = dist(rng) > WALL_CHANCE ? TileType::NONOBSTACLE : TileType::OBSTACLE;
         }
     } 
     for(int i = 0; i < CASTLE_SIZE; i++)
@@ -207,7 +179,7 @@ void Map::Cycle()
         }   
     }
 
-    for(int i = 0; i < iterations; i++)
+    for(int i = 0; i < ITERATIONS; i++)
     {
         for(int y = 1; y < GRID_DIMENSIONS.y - 1; y++)
         {
@@ -226,7 +198,7 @@ void Map::Cycle()
         } 
     }
 
-    for(int i = 0; i < iterations; i++)
+    for(int i = 0; i < ITERATIONS; i++)
     {
         auto next_grid = map_grid; // copy current state
 
@@ -245,4 +217,95 @@ void Map::Cycle()
 
         map_grid = next_grid; // replace after whole step finished
     }
+
+    ComputeAllies();
+    ComputeEnemies();
+    ComputeResources();
+    ComputeLight();
+}
+
+void Map::ComputeEnemies()
+{
+    // The closer the middle of the map, the chance to spawn enemy should be less possible
+
+}
+
+void Map::ComputeAllies()
+{
+    // They should be evenly distributed over map avoiding middle
+    std::uniform_real_distribution<> dist(0.0f,1.0f);
+    // They should be evenly distributed over map
+    for(auto& row : map_grid)
+    {
+        for(auto& column : row)
+        {
+            if(column == TileType::NONOBSTACLE)
+            {
+                if(dist(rng) < ALLY_CHANCE)
+                    column = TileType::ALLY_SPAWNER;
+            }
+        }
+    }
+}
+
+void Map::ComputeResources()
+{
+    std::uniform_real_distribution<> dist(0.0f,1.0f);
+    // They should be evenly distributed over map
+    for(auto& row : map_grid)
+    {
+        for(auto& column : row)
+        {
+            if(column == TileType::NONOBSTACLE || column == TileType::SPECIAL)
+            {
+                if(dist(rng) < RESOURCE_CHANCE)
+                    column = TileType::RESOURCE_SPAWNER;            
+            }
+        }
+    }
+}
+
+void Map::ComputeLight()
+{
+    map_grid[GRID_DIMENSIONS.y/2][GRID_DIMENSIONS.x/2] = TileType::LIGHT;
+}
+
+glm::vec4 Map::ComputeColors(int i, int j)
+{
+    glm::vec4 color = glm::vec4{1.0f};
+
+    switch (map_grid[i][j]) {
+        case TileType::OBSTACLE:
+            color = glm::vec4{0.0f, 0.0f, 0.0f, 1.0f};
+            break;
+
+        case TileType::NONOBSTACLE:
+            color = glm::vec4{1.0f, 1.0f, 1.0f, 1.0f};
+            break;
+
+        case TileType::SPECIAL:
+            color = glm::vec4{1.0f, 1.0f, 1.0f, 1.0f};
+            break;
+
+        case TileType::ALLY_SPAWNER:
+            color = glm::vec4{0.0f, 1.0f, 0.0f, 1.0f};
+            break;
+
+        case TileType::ENEMY_SPAWNER:
+            color = glm::vec4{1.0f, 0.0f, 0.0f, 1.0f};
+            break;
+
+        case TileType::RESOURCE_SPAWNER:
+            color = glm::vec4{1.0f, 0.0f, 1.0f, 1.0f};
+            break;
+
+        case TileType::LIGHT:
+            color = glm::vec4{1.0f, 1.0f, 0.0f, 1.0f};
+            break;
+
+        default:
+            LOG_ERROR("We do not handle this TileType!");
+            break;
+    } 
+    return color;
 }

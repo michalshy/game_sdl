@@ -28,4 +28,9 @@ private:
     bool Survival(int y, int x);
     int CountWallNeighbors(int y, int x);
     void DefineEntites(Scene* scene);
+    void ComputeEnemies();
+    void ComputeAllies();
+    void ComputeResources();
+    void ComputeLight();
+    glm::vec4 ComputeColors(int i, int j);
 };

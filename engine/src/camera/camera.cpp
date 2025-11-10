@@ -1,10 +1,10 @@
 #include "camera.h"
 
-constexpr float SPEED = 100.0f;
+constexpr float SPEED = 200.0f;
 constexpr float MIN_ZOOM = 0.1f;
 constexpr float MAX_ZOOM = 10.0f;
 Camera::Camera(float width, float height)
-    : m_Zoom(1.0f), m_MovementSpeed(SPEED),
+    : m_Zoom(1.0f), m_MovementSpeed(SPEED), // todo: adjust zoom
       m_ViewportWidth(width), m_ViewportHeight(height)
 {
     m_ProjectionMatrix = glm::ortho(

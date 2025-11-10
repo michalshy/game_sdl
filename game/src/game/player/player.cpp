@@ -15,7 +15,7 @@ constexpr glm::ivec2 PLAYER_SIZE{6,12};
 
 Player::Player(Entity&& entity) : m_PlayerEntity(entity) 
 {
-    const glm::vec3 start_position {(GRID_DIMENSIONS.x/2)*TILE_SIZE, (GRID_DIMENSIONS.y/2)*TILE_SIZE, 0.1f};
+    const glm::vec3 start_position {(GRID_DIMENSIONS.x/2)*TILE_SIZE, (GRID_DIMENSIONS.y/2 - 1)*TILE_SIZE, 0.1f};
     // lets create components
     glm::mat4 model = glm::translate(glm::mat4(1.0f), start_position);
     model = glm::scale(model, glm::vec3(PLAYER_SIZE.x, PLAYER_SIZE.y, 1.0f));
@@ -70,7 +70,6 @@ const glm::ivec2 Player::GetSize()
 void Player::UpdateInternal(float delta_time)
 {
     HandleInput(delta_time);
-    LOG_DEBUG("After handling input pos is {},{},{}", GetPosition().x, GetPosition().y, GetPosition().z);
 }
 
 void Player::UpdateMove(glm::vec3 mask)
