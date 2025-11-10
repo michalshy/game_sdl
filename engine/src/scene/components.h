@@ -32,3 +32,11 @@ struct CoCollider {
     glm::ivec2 size;
     bool isStatic = false;
 };
+
+struct CoLight
+{
+    glm::vec3 color = {1.0f, 1.0f, 1.0f};
+    float radius = 200.0f;
+    float intensity = 1.0f;
+    bool active = true;
+};

@@ -1,6 +1,7 @@
 #include "renderer.h"
 #include <GL/glew.h>
 #include <glm/ext/matrix_clip_space.hpp>
+#include "light_manager.h"
 
 std::unique_ptr<Renderer::RendererData> Renderer::s_Data = nullptr;
 
@@ -89,8 +90,16 @@ void Renderer::BeginFrame()
     glViewport(0,0,display_w,display_h);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    s_Data->QuadShader.Use();
+    s_Data->QuadShader.Use(); // <-- bind shader before uniforms
     s_Data->QuadShader.SetMat4("u_ViewProjection", s_Data->ProjectionMatrix);
+
+    auto& lights = LightManager::GetLights();
+    if (!lights.empty()) {
+    const Light& mainLight = lights[0]; // single light for now
+    s_Data->QuadShader.SetVec2("u_LightPos", mainLight.Position);
+    s_Data->QuadShader.SetVec3("u_LightColor", mainLight.Color * mainLight.Intensity);
+    s_Data->QuadShader.SetFloat("u_LightRadius", mainLight.Radius);
+    }
 
     s_Data->InstanceBuffer.clear();
 }

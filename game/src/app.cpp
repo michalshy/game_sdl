@@ -4,6 +4,7 @@
 #include <spdlog/spdlog.h>
 #include "log.h"
 #include "app.h"
+#include "renderer/light_manager.h"
 #include "renderer/renderer.h"
 #include "timer/timer.h"
 
@@ -25,6 +26,9 @@ bool App::Init()
         return false;
 
     if (!game || !game->Init())
+        return false;
+
+    if (!LightManager::Init())
         return false;
 
     if (!Renderer::Init(window->GetWindowRaw()))

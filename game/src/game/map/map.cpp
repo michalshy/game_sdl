@@ -6,6 +6,7 @@
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/ext/vector_float2.hpp>
 #include <random>
+#include "renderer/light_manager.h"
 #include "scene/components.h"
 #include "scene/entity.h"
 
@@ -27,7 +28,8 @@ Map::Map()
         {
             map_grid[y].push_back(TileType::OBSTACLE);
         }
-    }  
+    } 
+    light_map.assign(map_grid.size(), std::vector<float>(map_grid[0].size(), 0.0f)); 
 }
 
 bool Map::Init(Scene* scene)
@@ -158,6 +160,82 @@ void Map::RunCycle()
     {
         glm::vec4 color = ComputeColors(tile_cords.x, tile_cords.y);
         sprite.color = color;
+    }
+}
+
+void Map::Update()
+{
+    UpdateLightMaps();
+}
+
+void Map::UpdateLightMaps()
+{
+    // Reset light map
+    for (auto& row : light_map)
+        std::fill(row.begin(), row.end(), 0.3f); // ambient baseline
+
+    for (const auto& light : LightManager::GetLights())
+        UpdateLightMap(light.Position, light.Radius, light.Intensity);
+}
+
+void Map::UpdateLightMap(
+    const glm::vec2& light_pos_world,
+    float radius,
+    float intensity)
+{
+    const int height = (int)map_grid.size();
+    const int width = (int)map_grid[0].size();
+
+    int lx = (int)(light_pos_world.x / TILE_SIZE);
+    int ly = (int)(light_pos_world.y / TILE_SIZE);
+    int r_tiles = (int)(radius / TILE_SIZE);
+
+    for (int y = ly - r_tiles; y <= ly + r_tiles; ++y)
+    {
+        for (int x = lx - r_tiles; x <= lx + r_tiles; ++x)
+        {
+            if (x < 0 || y < 0 || y >= height || x >= width)
+                continue;
+
+            float dx = (float)(x - lx);
+            float dy = (float)(y - ly);
+            float dist = std::sqrt(dx * dx + dy * dy);
+            if (dist > r_tiles)
+                continue;
+
+            // Raycast from light to tile center
+            bool blocked = false;
+            int x0 = lx, y0 = ly;
+            int x1 = x, y1 = y;
+            int dx_ = std::abs(x1 - x0), sx = x0 < x1 ? 1 : -1;
+            int dy_ = -std::abs(y1 - y0), sy = y0 < y1 ? 1 : -1;
+            int err = dx_ + dy_;
+
+            while (true)
+            {
+                if (y0 >= 0 && x0 >= 0 && y0 < height && x0 < width)
+                {
+                    if (map_grid[y0][x0] == TileType::OBSTACLE)
+                    {
+                        blocked = true;
+                        break;
+                    }
+                }
+
+                if (x0 == x1 && y0 == y1)
+                    break;
+
+                int e2 = 2 * err;
+                if (e2 >= dy_) { err += dy_; x0 += sx; }
+                if (e2 <= dx_) { err += dx_; y0 += sy; }
+            }
+
+            if (!blocked)
+            {
+                float brightness = intensity * (1.0f - (dist / r_tiles));
+                light_map[y][x] = std::max(light_map[y][x], brightness);
+            }
+        }
     }
 }
 

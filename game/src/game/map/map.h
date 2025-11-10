@@ -13,6 +13,7 @@ class Map
     // it might be used as different types of obstacles
     int seed;
     std::vector<std::vector<TileType>> map_grid;
+    std::vector<std::vector<float>> light_map;
     Scene* m_Scene;
     std::mt19937 rng;
 public:
@@ -21,7 +22,11 @@ public:
     glm::vec3 CheckBounds(Player& player);
     int GetSeed();
     void RunCycle();
+    void Update();
+    const std::vector<std::vector<float>>& GetLightMap() { return light_map; }
 private:
+    void UpdateLightMaps();
+    void UpdateLightMap(const glm::vec2& light_pos_world, float radius, float intensity = 1.0f); 
     void Cycle();
     bool InitMap(Scene* scene);
     bool Birth(int y, int x);
